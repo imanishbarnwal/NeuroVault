@@ -25,7 +25,9 @@
       "Bash(lsof:*)",
       "Bash(git add:*)",
       "Bash(curl:*)",
-      "WebFetch(domain:developer.litprotocol.com)"
+      "WebFetch(domain:developer.litprotocol.com)",
+      "Bash(git -C /Users/imanishbarnwal/Downloads/NeuroVault log --oneline)",
+      "Bash(npx hardhat:*)"
     ]
   }
 }

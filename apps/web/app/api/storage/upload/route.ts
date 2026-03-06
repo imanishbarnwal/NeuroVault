@@ -56,7 +56,24 @@ export async function POST(request: NextRequest) {
 
     const encryptedData = new Uint8Array(await dataBlob.arrayBuffer());
 
-    const result = await uploadEncryptedEEG(encryptedData, metadata);
+    // Optional access control fields
+    const accessType = formData.get("accessType") as string | null;
+    const accessConditionsStr = formData.get("accessConditions") as string | null;
+    let accessConditions;
+    if (accessConditionsStr) {
+      try {
+        accessConditions = JSON.parse(accessConditionsStr);
+      } catch {
+        // Ignore invalid JSON
+      }
+    }
+
+    const result = await uploadEncryptedEEG(
+      encryptedData,
+      metadata,
+      accessType ?? undefined,
+      accessConditions
+    );
 
     return NextResponse.json(result);
   } catch (error) {

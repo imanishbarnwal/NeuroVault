@@ -24,6 +24,7 @@ import type {
   DatasetEntry,
   DatasetRegistry,
   StorageProof,
+  AccessConditionItem,
 } from "@/types";
 import { getGatewayUrl } from "./storacha";
 
@@ -93,7 +94,9 @@ export function resetClient(): void {
  */
 export async function uploadEncryptedEEG(
   encryptedData: Uint8Array,
-  metadata: DatasetMetadata
+  metadata: DatasetMetadata,
+  accessType?: string,
+  accessConditions?: AccessConditionItem[]
 ): Promise<UploadResult> {
   const client = await getClient();
 
@@ -106,8 +109,15 @@ export async function uploadEncryptedEEG(
   });
   const dataCID = await client.uploadFile(dataFile);
 
-  // Upload metadata JSON
-  const metadataJson = JSON.stringify(metadata, null, 2);
+  // Upload metadata JSON (include access info if provided)
+  const metadataWithAccess = {
+    ...metadata,
+    ...(accessType ? { accessType } : {}),
+    ...(accessConditions && accessConditions.length > 0
+      ? { accessConditions }
+      : {}),
+  };
+  const metadataJson = JSON.stringify(metadataWithAccess, null, 2);
   const metadataBlob = new Blob([metadataJson], {
     type: "application/json",
   });
@@ -124,7 +134,7 @@ export async function uploadEncryptedEEG(
   };
 
   // Register in the dataset registry
-  await addToRegistry(client, metadata, result);
+  await addToRegistry(client, metadata, result, accessType, accessConditions);
 
   return result;
 }
@@ -190,7 +200,9 @@ async function saveRegistry(
 async function addToRegistry(
   client: StorachaClient,
   metadata: DatasetMetadata,
-  upload: UploadResult
+  upload: UploadResult,
+  accessType?: string,
+  accessConditions?: AccessConditionItem[]
 ): Promise<void> {
   const registry = await loadRegistry();
 
@@ -204,6 +216,12 @@ async function addToRegistry(
     duration: metadata.duration,
     task: metadata.task,
     filename: metadata.filename,
+    ...(accessType
+      ? { accessType: accessType as "public" | "restricted" | "private" }
+      : {}),
+    ...(accessConditions && accessConditions.length > 0
+      ? { accessConditions }
+      : {}),
   };
 
   registry.entries = registry.entries.filter((e) => e.id !== metadata.id);

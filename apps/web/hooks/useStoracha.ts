@@ -26,7 +26,9 @@ export function useStoracha() {
   const upload = useCallback(
     async (
       encryptedData: Uint8Array,
-      metadata: DatasetMetadata
+      metadata: DatasetMetadata,
+      accessType?: string,
+      accessConditions?: import("@/types").AccessConditionItem[]
     ): Promise<UploadResult | null> => {
       setIsLoading(true);
       setError(null);
@@ -35,8 +37,8 @@ export function useStoracha() {
         // Stage 1: Preparing
         setProgress({
           stage: "preparing",
-          percent: 10,
-          message: "Preparing encrypted data for upload...",
+          percent: 5,
+          message: "Serializing EEG data...",
         });
 
         const formData = new FormData();
@@ -46,11 +48,22 @@ export function useStoracha() {
         formData.append("data", dataBlob, `${metadata.id}.enc`);
         formData.append("metadata", JSON.stringify(metadata));
 
-        // Stage 2: Uploading
+        // Append access control fields if provided
+        if (accessType) {
+          formData.append("accessType", accessType);
+        }
+        if (accessConditions && accessConditions.length > 0) {
+          formData.append(
+            "accessConditions",
+            JSON.stringify(accessConditions)
+          );
+        }
+
+        // Stage 2: Uploading data
         setProgress({
           stage: "uploading-data",
-          percent: 30,
-          message: "Uploading encrypted EEG data to Storacha...",
+          percent: 50,
+          message: "Uploading to Filecoin...",
         });
 
         const response = await fetch("/api/storage/upload", {
@@ -63,13 +76,20 @@ export function useStoracha() {
           throw new Error(err.error || `Upload failed: ${response.status}`);
         }
 
-        // Stage 3: Complete
+        // Stage 3: Registering
+        setProgress({
+          stage: "registering",
+          percent: 90,
+          message: "Registering dataset...",
+        });
+
         const result: UploadResult = await response.json();
 
+        // Stage 4: Complete
         setProgress({
           stage: "complete",
           percent: 100,
-          message: "Upload complete! Data stored on Filecoin network.",
+          message: "Done!",
           result,
         });
 
@@ -195,6 +215,7 @@ export function useStoracha() {
     listDatasets,
     getProof,
     progress,
+    setProgress,
     resetProgress,
     isLoading,
     error,

@@ -18,6 +18,7 @@ import AccessConditionBuilder from "@/components/upload/AccessConditionBuilder";
 import { useStoracha } from "@/hooks/useStoracha";
 import { useLitProtocol } from "@/hooks/useLitProtocol";
 import { buildWalletCondition } from "@/lib/lit";
+import { describeConditions } from "@/lib/conditions";
 import type { AccessConditionItem } from "@/types";
 import {
   MOCK_SIGNALS,
@@ -709,7 +710,7 @@ export default function UploadPage() {
   const [credentials, setCredentials] = useState("");
   const [accessConditions, setAccessConditions] = useState<AccessConditionItem[]>([]);
 
-  const { upload, getProof, progress, resetProgress, isLoading } = useStoracha();
+  const { upload, getProof, progress, setProgress, resetProgress, isLoading } = useStoracha();
   const { encrypt, isReady: litReady, isDemo: litIsDemo } = useLitProtocol();
 
   // Step 1 → 2
@@ -723,7 +724,13 @@ export default function UploadPage() {
     if (!parsed) return;
 
     try {
-      // Serialize actual EEG signal data
+      // Stage 1: Preparing
+      setProgress({
+        stage: "preparing",
+        percent: 5,
+        message: "Serializing EEG data...",
+      });
+
       const rawData = new TextEncoder().encode(
         JSON.stringify({
           filename: parsed.metadata.filename,
@@ -740,7 +747,13 @@ export default function UploadPage() {
         // Public: no encryption, upload raw data
         dataToUpload = rawData;
       } else {
-        // Private/Restricted: encrypt with Lit Protocol
+        // Stage 2: Encrypting
+        setProgress({
+          stage: "encrypting",
+          percent: 20,
+          message: "Encrypting with Lit Protocol...",
+        });
+
         let conditions = accessConditions;
 
         // Private mode: create a self-only wallet condition as placeholder
@@ -757,7 +770,13 @@ export default function UploadPage() {
         dataToUpload = new TextEncoder().encode(JSON.stringify(envelope));
       }
 
-      const result = await upload(dataToUpload, parsed.metadata);
+      // Stages 3-6 are handled by the upload() function in the hook
+      const result = await upload(
+        dataToUpload,
+        parsed.metadata,
+        accessType,
+        accessConditions
+      );
 
       if (result) {
         setTimeout(() => setStep(4), 800);
@@ -773,7 +792,7 @@ export default function UploadPage() {
         );
       }
     }
-  }, [parsed, upload, accessType, accessConditions, encrypt]);
+  }, [parsed, upload, setProgress, accessType, accessConditions, encrypt]);
 
   // Reset everything
   const handleReset = useCallback(() => {
@@ -870,14 +889,45 @@ export default function UploadPage() {
           )}
 
           {step === 2 && (
-            <AccessConditionBuilder
-              accessType={accessType}
-              onAccessChange={setAccessType}
-              onConditionsChange={setAccessConditions}
-              onNext={() => setStep(3)}
-              onBack={() => setStep(1)}
-              isDemo={litIsDemo}
-            />
+            <>
+              <AccessConditionBuilder
+                accessType={accessType}
+                onAccessChange={setAccessType}
+                onConditionsChange={setAccessConditions}
+                onNext={() => setStep(3)}
+                onBack={() => setStep(1)}
+                isDemo={litIsDemo}
+              />
+              {/* Condition summary */}
+              {(accessType !== "public" || accessConditions.length > 0) && (
+                <div className="max-w-lg mx-auto mt-4 rounded-xl border border-slate-800 bg-slate-900/50 p-4">
+                  <h4 className="text-xs font-semibold text-slate-400 mb-2">
+                    Access Summary
+                  </h4>
+                  <p className="text-sm text-slate-200">
+                    This dataset will be decryptable by:{" "}
+                    {describeConditions(accessConditions, accessType)
+                      .map((d, i) =>
+                        d === "AND" || d === "OR" ? (
+                          <span
+                            key={i}
+                            className="text-xs text-cyan-400 font-semibold mx-1"
+                          >
+                            {d}
+                          </span>
+                        ) : (
+                          <span
+                            key={i}
+                            className="font-mono text-cyan-300 text-xs"
+                          >
+                            [{d}]
+                          </span>
+                        )
+                      )}
+                  </p>
+                </div>
+              )}
+            </>
           )}
 
           {step === 3 && parsed && (

@@ -1,13 +1,13 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
-import type { EncryptedEnvelope, AccessConditionItem } from "@/types";
+import { useState, useEffect, useCallback, useMemo, useRef } from "react";
+import type { EncryptedEnvelope, AccessConditionItem, EvmCondition } from "@/types";
 
 /**
  * React hook for Lit Protocol encryption/decryption.
  *
  * Initializes the Lit client on mount (or falls back to demo mode).
- * Provides encrypt/decrypt functions for EEG data.
+ * Provides encrypt/decrypt/buildConditions functions for EEG data.
  */
 export function useLitProtocol() {
   const [isReady, setIsReady] = useState(false);
@@ -75,5 +75,53 @@ export function useLitProtocol() {
     []
   );
 
-  return { encrypt, decrypt, isReady, isDemo, error };
+  /**
+   * Condition builder functions — lazy-loaded from lib/lit.
+   */
+  const buildConditions = useMemo(
+    () => ({
+      wallet: async (address: string, chain?: string): Promise<EvmCondition> => {
+        const { buildWalletCondition } = await import("@/lib/lit");
+        return buildWalletCondition(address, chain);
+      },
+      nft: async (contractAddress: string, chain?: string): Promise<EvmCondition> => {
+        const { buildNFTCondition } = await import("@/lib/lit");
+        return buildNFTCondition(contractAddress, chain);
+      },
+      token: async (contractAddress: string, minBalance: string, chain?: string): Promise<EvmCondition> => {
+        const { buildTokenCondition } = await import("@/lib/lit");
+        return buildTokenCondition(contractAddress, minBalance, chain);
+      },
+      timelock: async (unlockTimestamp: number): Promise<EvmCondition> => {
+        const { buildTimelockCondition } = await import("@/lib/lit");
+        return buildTimelockCondition(unlockTimestamp);
+      },
+      researcher: async (chain?: string): Promise<EvmCondition> => {
+        const { buildResearcherCondition } = await import("@/lib/lit");
+        return buildResearcherCondition(chain);
+      },
+      time: async (expiresAt: Date): Promise<EvmCondition> => {
+        const { buildTimeCondition } = await import("@/lib/lit");
+        return buildTimeCondition(expiresAt);
+      },
+      composite: async (
+        conditions: EvmCondition[],
+        operator?: "and" | "or"
+      ): Promise<AccessConditionItem[]> => {
+        const { buildCompositeCondition } = await import("@/lib/lit");
+        return buildCompositeCondition(conditions, operator);
+      },
+    }),
+    []
+  );
+
+  return {
+    encrypt,
+    decrypt,
+    buildConditions,
+    isReady,
+    isConnected: isReady,
+    isDemo,
+    error,
+  };
 }

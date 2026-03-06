@@ -18,8 +18,16 @@ import type {
 
 // ── Constants ─────────────────────────────────────────────────────
 
-const LIT_NETWORK = "datil-dev";
+const LIT_NETWORK =
+  process.env.NEXT_PUBLIC_LIT_NETWORK || "datil-dev";
 const LIT_CONNECT_TIMEOUT_MS = 10_000;
+
+/**
+ * Placeholder contract address for the NeuroVault Researcher NFT.
+ * Replace with the real deployed address on Flow/EVM once minted.
+ */
+const NEUROVAULT_RESEARCHER_NFT =
+  "0x0000000000000000000000000000000000000000";
 
 // ── Singleton Client ──────────────────────────────────────────────
 
@@ -178,6 +186,38 @@ export function combineConditions(
     result.push(cond);
   });
   return result;
+}
+
+// ── Preset Condition Builders ────────────────────────────────────
+
+/**
+ * Build an access condition requiring the NeuroVault Researcher NFT.
+ * Uses the placeholder contract address — replace once deployed.
+ */
+export function buildResearcherCondition(
+  chain = "ethereum"
+): EvmCondition {
+  return buildNFTCondition(NEUROVAULT_RESEARCHER_NFT, chain);
+}
+
+/**
+ * Build a time-based access condition that expires after a given date.
+ * Data is decryptable only *before* the expiry (comparator <=).
+ * For "unlock after" semantics, use buildTimelockCondition directly.
+ */
+export function buildTimeCondition(expiresAt: Date): EvmCondition {
+  const ts = Math.floor(expiresAt.getTime() / 1000);
+  return buildTimelockCondition(ts);
+}
+
+/**
+ * Alias for combineConditions — combine multiple conditions with AND/OR.
+ */
+export function buildCompositeCondition(
+  conditions: EvmCondition[],
+  operator: "and" | "or" = "and"
+): AccessConditionItem[] {
+  return combineConditions(conditions, operator);
 }
 
 // ── Demo Mode Fallback (Web Crypto AES-GCM) ──────────────────────

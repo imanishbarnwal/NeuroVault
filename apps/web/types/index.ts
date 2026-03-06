@@ -34,6 +34,10 @@ export interface DatasetEntry {
   task: string;
   /** Original filename */
   filename: string;
+  /** Access type: public, restricted, or private */
+  accessType?: "public" | "restricted" | "private";
+  /** Access control conditions (for restricted/private datasets) */
+  accessConditions?: AccessConditionItem[];
 }
 
 /** Filecoin storage proof for verifying data persistence */
@@ -124,6 +128,41 @@ export interface EncryptedEnvelope {
 export interface LitConfig {
   network: string;
   debug: boolean;
+}
+
+// ── Flow Blockchain / On-Chain Registry ───────────────────────────
+
+/** On-chain dataset entry from the NeuroVaultRegistry contract */
+export interface FlowDataset {
+  id: number;
+  contributor: string;
+  dataCID: string;
+  metadataCID: string;
+  price: bigint;
+  registeredAt: number;
+  active: boolean;
+}
+
+/** On-chain access license for a dataset */
+export interface FlowLicense {
+  licensee: string;
+  datasetId: number;
+  purchasedAt: number;
+  expiresAt: number;
+}
+
+/** Contributor statistics from on-chain data */
+export interface FlowContributorStats {
+  totalEarnings: bigint;
+  datasetIds: number[];
+  datasetCount: number;
+}
+
+/** Wallet connection state for Flow EVM */
+export interface FlowWalletState {
+  address: string | null;
+  isConnected: boolean;
+  chainId: number | null;
 }
 
 // Re-export eeg-utils types for convenience
