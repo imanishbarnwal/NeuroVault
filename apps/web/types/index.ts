@@ -58,6 +58,7 @@ export interface StorageProof {
 export interface UploadProgress {
   stage:
     | "idle"
+    | "encrypting"
     | "preparing"
     | "uploading-data"
     | "uploading-metadata"
@@ -78,6 +79,51 @@ export interface UploadProgress {
 export interface DatasetRegistry {
   version: number;
   entries: DatasetEntry[];
+}
+
+// ── Lit Protocol / Encryption ─────────────────────────────────────
+
+/** A single EVM-based access control condition for Lit Protocol */
+export interface EvmCondition {
+  contractAddress: string;
+  standardContractType: string;
+  chain: string;
+  method: string;
+  parameters: string[];
+  returnValueTest: {
+    comparator: string;
+    value: string;
+  };
+}
+
+/** Boolean operator between conditions */
+export interface ConditionOperator {
+  operator: "and" | "or";
+}
+
+/** Access condition array element (condition or boolean operator) */
+export type AccessConditionItem = EvmCondition | ConditionOperator;
+
+/** Encrypted data envelope stored on Storacha */
+export interface EncryptedEnvelope {
+  /** Base64-encoded encrypted ciphertext */
+  ciphertext: string;
+  /** Hash of the original data (used by Lit for decryption) */
+  dataToEncryptHash: string;
+  /** Access control conditions required for decryption */
+  accessConditions: AccessConditionItem[];
+  /** ISO timestamp when encryption was performed */
+  encryptedAt: string;
+  /** Lit network used (e.g. "datil-dev") */
+  litNetwork: string;
+  /** Whether this was encrypted in demo mode (Web Crypto fallback) */
+  isDemo?: boolean;
+}
+
+/** Configuration for Lit Protocol client */
+export interface LitConfig {
+  network: string;
+  debug: boolean;
 }
 
 // Re-export eeg-utils types for convenience

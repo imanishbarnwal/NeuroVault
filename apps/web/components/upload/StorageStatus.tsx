@@ -24,6 +24,7 @@ function truncateCid(cid: string, chars = 8): string {
 
 const STAGE_LABELS: Record<string, string> = {
   idle: "Ready",
+  encrypting: "Encrypting",
   preparing: "Preparing",
   "uploading-data": "Uploading Data",
   "uploading-metadata": "Uploading Metadata",

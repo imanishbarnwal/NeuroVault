@@ -14,7 +14,11 @@ import type { EdfFile, DatasetMetadata, EegFeatures } from "@neurovault/eeg-util
 import EEGMetadataCard from "@/components/eeg/EEGMetadataCard";
 import EEGWaveformViewer from "@/components/eeg/EEGWaveformViewer";
 import StorageStatus from "@/components/upload/StorageStatus";
+import AccessConditionBuilder from "@/components/upload/AccessConditionBuilder";
 import { useStoracha } from "@/hooks/useStoracha";
+import { useLitProtocol } from "@/hooks/useLitProtocol";
+import { buildWalletCondition } from "@/lib/lit";
+import type { AccessConditionItem } from "@/types";
 import {
   MOCK_SIGNALS,
   MOCK_METADATA,
@@ -400,170 +404,6 @@ function StepSelectData({
 }
 
 // ════════════════════════════════════════════════════════════════════
-// STEP 2: Set Access Conditions
-// ════════════════════════════════════════════════════════════════════
-
-function StepAccessConditions({
-  accessType,
-  credentials,
-  onAccessChange,
-  onCredentialsChange,
-  onNext,
-  onBack,
-}: {
-  accessType: AccessType;
-  credentials: string;
-  onAccessChange: (t: AccessType) => void;
-  onCredentialsChange: (c: string) => void;
-  onNext: () => void;
-  onBack: () => void;
-}) {
-  const accessOptions: { value: AccessType; label: string; desc: string; icon: React.ReactNode }[] = [
-    {
-      value: "public",
-      label: "Public",
-      desc: "Anyone can access and download this dataset",
-      icon: (
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-          <circle cx="12" cy="12" r="10" />
-          <line x1="2" y1="12" x2="22" y2="12" />
-          <path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z" />
-        </svg>
-      ),
-    },
-    {
-      value: "restricted",
-      label: "Restricted",
-      desc: "Only authorized researchers with credentials",
-      icon: (
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-        </svg>
-      ),
-    },
-    {
-      value: "private",
-      label: "Private",
-      desc: "Only you can access this dataset",
-      icon: (
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-          <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-          <path d="M7 11V7a5 5 0 0110 0v4" />
-        </svg>
-      ),
-    },
-  ];
-
-  return (
-    <div className="flex flex-col gap-6 max-w-lg mx-auto">
-      <div className="text-center">
-        <h2 className="text-xl font-semibold text-slate-100">Access Conditions</h2>
-        <p className="text-sm text-slate-400 mt-1">
-          Control who can decrypt and access your data
-        </p>
-      </div>
-
-      {/* Access type selector */}
-      <div className="grid gap-2">
-        {accessOptions.map((opt) => (
-          <button
-            key={opt.value}
-            onClick={() => onAccessChange(opt.value)}
-            className={`
-              flex items-center gap-3 p-4 rounded-xl border text-left
-              transition-all duration-200
-              ${accessType === opt.value
-                ? "border-cyan-500/60 bg-cyan-500/5"
-                : "border-slate-800 bg-slate-900 hover:border-slate-700"
-              }
-            `}
-          >
-            <div
-              className={`w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 transition-colors ${
-                accessType === opt.value
-                  ? "bg-cyan-500/15 text-cyan-400"
-                  : "bg-slate-800 text-slate-500"
-              }`}
-            >
-              {opt.icon}
-            </div>
-            <div className="flex-1">
-              <p className={`text-sm font-medium ${accessType === opt.value ? "text-slate-100" : "text-slate-300"}`}>
-                {opt.label}
-              </p>
-              <p className="text-xs text-slate-500">{opt.desc}</p>
-            </div>
-            <div
-              className={`w-4 h-4 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-all ${
-                accessType === opt.value ? "border-cyan-400" : "border-slate-700"
-              }`}
-            >
-              {accessType === opt.value && (
-                <div className="w-2 h-2 rounded-full bg-cyan-400" />
-              )}
-            </div>
-          </button>
-        ))}
-      </div>
-
-      {/* Restricted credentials input */}
-      {accessType === "restricted" && (
-        <div className="rounded-xl border border-slate-800 bg-slate-900 p-4 flex flex-col gap-2 animate-fadeIn">
-          <label className="text-sm text-slate-300 font-medium">
-            Required Credentials
-          </label>
-          <input
-            type="text"
-            value={credentials}
-            onChange={(e) => onCredentialsChange(e.target.value)}
-            placeholder="e.g., IRB approval number, institution email domain"
-            className="w-full px-3 py-2 rounded-lg bg-slate-950 border border-slate-700
-                       text-sm text-slate-200 placeholder:text-slate-600
-                       focus:outline-none focus:border-cyan-500/50 focus:ring-1 focus:ring-cyan-500/20
-                       transition-colors"
-          />
-          <p className="text-[10px] text-slate-600">
-            Researchers must provide these credentials to request access
-          </p>
-        </div>
-      )}
-
-      {/* Encryption notice */}
-      <div className="rounded-xl bg-violet-500/5 border border-violet-500/20 p-4 flex gap-3">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-violet-400 flex-shrink-0 mt-0.5">
-          <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-          <path d="M7 11V7a5 5 0 0110 0v4" />
-        </svg>
-        <div>
-          <p className="text-sm text-violet-300 font-medium">End-to-end encryption</p>
-          <p className="text-xs text-slate-400 mt-1">
-            Your data will be encrypted before upload using Lit Protocol.
-            Only authorized researchers matching your access conditions can decrypt it.
-          </p>
-        </div>
-      </div>
-
-      {/* Navigation */}
-      <div className="flex items-center justify-between pt-2">
-        <button
-          onClick={onBack}
-          className="px-4 py-2 text-sm text-slate-400 hover:text-slate-200 transition-colors"
-        >
-          Back
-        </button>
-        <button
-          onClick={onNext}
-          className="px-6 py-2.5 text-sm font-medium rounded-lg bg-cyan-500 text-slate-950
-                     hover:bg-cyan-400 transition-colors"
-        >
-          Continue
-        </button>
-      </div>
-    </div>
-  );
-}
-
-// ════════════════════════════════════════════════════════════════════
 // STEP 3: Review & Upload
 // ════════════════════════════════════════════════════════════════════
 
@@ -867,8 +707,10 @@ export default function UploadPage() {
   const [parsed, setParsed] = useState<ParsedEEG | null>(null);
   const [accessType, setAccessType] = useState<AccessType>("public");
   const [credentials, setCredentials] = useState("");
+  const [accessConditions, setAccessConditions] = useState<AccessConditionItem[]>([]);
 
   const { upload, getProof, progress, resetProgress, isLoading } = useStoracha();
+  const { encrypt, isReady: litReady, isDemo: litIsDemo } = useLitProtocol();
 
   // Step 1 → 2
   const handleParsed = useCallback((data: ParsedEEG) => {
@@ -876,32 +718,52 @@ export default function UploadPage() {
     setStep(2);
   }, []);
 
-  // Step 3: Upload
+  // Step 3: Upload with encryption
   const handleUpload = useCallback(async () => {
     if (!parsed) return;
 
     try {
-      // "Encryption" pass-through (Lit Protocol integration placeholder)
+      // Serialize actual EEG signal data
       const rawData = new TextEncoder().encode(
         JSON.stringify({
           filename: parsed.metadata.filename,
           channels: parsed.metadata.channels,
           sampleRate: parsed.sampleRate,
           duration: parsed.duration,
-          // In production, this would be the actual encrypted signal data
-          placeholder: true,
+          signals: parsed.signals,
         })
       );
 
-      const result = await upload(rawData, parsed.metadata);
+      let dataToUpload: Uint8Array;
+
+      if (accessType === "public") {
+        // Public: no encryption, upload raw data
+        dataToUpload = rawData;
+      } else {
+        // Private/Restricted: encrypt with Lit Protocol
+        let conditions = accessConditions;
+
+        // Private mode: create a self-only wallet condition as placeholder
+        if (accessType === "private" && conditions.length === 0) {
+          conditions = [
+            buildWalletCondition(
+              "0x0000000000000000000000000000000000000000"
+            ),
+          ];
+        }
+
+        const envelope = await encrypt(rawData, conditions);
+        // Store the entire envelope as the data blob
+        dataToUpload = new TextEncoder().encode(JSON.stringify(envelope));
+      }
+
+      const result = await upload(dataToUpload, parsed.metadata);
 
       if (result) {
-        // Small delay before transitioning to success for visual polish
         setTimeout(() => setStep(4), 800);
       }
     } catch (e) {
       console.error("Upload failed:", e);
-      // If Storacha is not configured, fall back to demo mode
       if (
         e instanceof Error &&
         (e.message.includes("STORACHA") || e.message.includes("Missing"))
@@ -911,7 +773,7 @@ export default function UploadPage() {
         );
       }
     }
-  }, [parsed, upload]);
+  }, [parsed, upload, accessType, accessConditions, encrypt]);
 
   // Reset everything
   const handleReset = useCallback(() => {
@@ -919,6 +781,7 @@ export default function UploadPage() {
     setParsed(null);
     setAccessType("public");
     setCredentials("");
+    setAccessConditions([]);
     resetProgress();
   }, [resetProgress]);
 
@@ -1007,13 +870,13 @@ export default function UploadPage() {
           )}
 
           {step === 2 && (
-            <StepAccessConditions
+            <AccessConditionBuilder
               accessType={accessType}
-              credentials={credentials}
               onAccessChange={setAccessType}
-              onCredentialsChange={setCredentials}
+              onConditionsChange={setAccessConditions}
               onNext={() => setStep(3)}
               onBack={() => setStep(1)}
+              isDemo={litIsDemo}
             />
           )}
 

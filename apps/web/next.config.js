@@ -14,6 +14,33 @@ const nextConfig = {
       "@ucanto/core",
     ],
   },
+  webpack: (config, { isServer }) => {
+    // Lit Protocol needs Node.js polyfills in the browser bundle
+    if (!isServer) {
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        crypto: false,
+        stream: false,
+        buffer: require.resolve("buffer/"),
+        process: require.resolve("process/browser"),
+        path: false,
+        os: false,
+        fs: false,
+        net: false,
+        tls: false,
+        child_process: false,
+      };
+
+      const webpack = require("webpack");
+      config.plugins.push(
+        new webpack.ProvidePlugin({
+          Buffer: ["buffer", "Buffer"],
+          process: "process/browser",
+        })
+      );
+    }
+    return config;
+  },
 };
 
 module.exports = nextConfig;
