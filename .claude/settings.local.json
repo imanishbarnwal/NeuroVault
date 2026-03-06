@@ -3,7 +3,28 @@
     "allow": [
       "Bash(pnpm install:*)",
       "Bash(npm:*)",
-      "Bash(git init:*)"
+      "Bash(git init:*)",
+      "WebSearch",
+      "WebFetch(domain:www.edfplus.info)",
+      "WebFetch(domain:paulbourke.net)",
+      "WebFetch(domain:www.teuniz.net)",
+      "Bash(pnpm --filter @neurovault/eeg-utils build:*)",
+      "Bash(bash /Users/imanishbarnwal/Downloads/NeuroVault/packages/eeg-utils/scripts/download-sample-data.sh)",
+      "Bash(node -e:*)",
+      "Bash(pnpm --filter @neurovault/web build:*)",
+      "Bash(pnpm --filter @neurovault/web add:*)",
+      "Bash(npx tsc:*)",
+      "WebFetch(domain:docs.storacha.network)",
+      "WebFetch(domain:www.npmjs.com)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:storacha.github.io)",
+      "Bash(ls:*)",
+      "Bash(pnpm --filter @neurovault/eeg-utils test)",
+      "Bash(pnpm build:*)",
+      "Bash(pnpm --filter @neurovault/web dev:*)",
+      "Bash(lsof:*)",
+      "Bash(git add:*)",
+      "Bash(curl:*)"
     ]
   }
 }

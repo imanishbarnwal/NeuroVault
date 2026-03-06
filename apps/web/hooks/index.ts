@@ -1,3 +1,1 @@
-// Custom React hooks
-
-export {};
+export { useStoracha } from "./useStoracha";

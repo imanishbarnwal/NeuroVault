@@ -36,5 +36,8 @@ pnpm-debug.log*
 # Testing
 coverage/
 
+# Sample EDF data files (download with: pnpm --filter @neurovault/eeg-utils download-data)
+packages/eeg-utils/test/fixtures/*.edf
+
 # Misc
 *.tsbuildinfo
