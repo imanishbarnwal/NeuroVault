@@ -45,6 +45,11 @@ function describeEvmCondition(cond: EvmCondition): string {
     return `After ${date.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}`;
   }
 
+  // Flow on-chain access condition
+  if (cond.method === "checkAccess" && cond.chain === "flowEvm") {
+    return `On-chain license (Flow)`;
+  }
+
   // Fallback
   return `Custom condition on ${cond.chain}`;
 }

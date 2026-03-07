@@ -27,7 +27,8 @@
       "Bash(curl:*)",
       "WebFetch(domain:developer.litprotocol.com)",
       "Bash(git -C /Users/imanishbarnwal/Downloads/NeuroVault log --oneline)",
-      "Bash(npx hardhat:*)"
+      "Bash(npx hardhat:*)",
+      "Bash(near contract deploy:*)"
     ]
   }
 }

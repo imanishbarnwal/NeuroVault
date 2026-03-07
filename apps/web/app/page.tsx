@@ -157,7 +157,7 @@ export default function Home() {
               { name: "Next.js 14", desc: "React framework", color: "slate" },
               { name: "TypeScript", desc: "Type-safe code", color: "slate" },
               { name: "Lit Protocol", desc: "Access control", color: "violet" },
-              { name: "NEAR", desc: "Smart contracts", color: "violet" },
+              { name: "Flow", desc: "On-chain registry", color: "violet" },
               { name: "Tailwind CSS", desc: "Styling", color: "slate" },
               { name: "PhysioNet", desc: "EEG datasets", color: "emerald" },
             ].map((tech) => (

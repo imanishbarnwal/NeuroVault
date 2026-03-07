@@ -220,6 +220,34 @@ export function buildCompositeCondition(
   return combineConditions(conditions, operator);
 }
 
+/**
+ * Build an access condition that checks on-chain access on Flow EVM.
+ *
+ * This creates a Lit Protocol access condition that calls `checkAccess(address, datasetId)`
+ * on the NeuroVaultRegistry contract. When a researcher purchases access on-chain,
+ * Lit can verify the on-chain license and release decryption keys automatically.
+ *
+ * This is the crypto-native access flow:
+ *   Pay on Flow -> Lit verifies on-chain license -> Decryption keys released
+ */
+export function buildFlowAccessCondition(
+  registryAddress: string,
+  datasetId: number,
+  chain = "flowEvm"
+): EvmCondition {
+  return {
+    contractAddress: registryAddress,
+    standardContractType: "",
+    chain,
+    method: "checkAccess",
+    parameters: [":userAddress", datasetId.toString()],
+    returnValueTest: {
+      comparator: "=",
+      value: "true",
+    },
+  };
+}
+
 // ── Demo Mode Fallback (Web Crypto AES-GCM) ──────────────────────
 
 /** Convert a Uint8Array to a fresh ArrayBuffer (avoids SharedArrayBuffer type issues) */

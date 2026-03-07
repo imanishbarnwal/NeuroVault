@@ -20,8 +20,24 @@ import type {
 
 const FLOW_EVM_RPC = "https://testnet.evm.nodes.onflow.org";
 const FLOW_EVM_CHAIN_ID = 545;
+const FLOW_EXPLORER_URL = "https://evm-testnet.flowscan.io";
 const REGISTRY_ADDRESS =
   process.env.NEXT_PUBLIC_FLOW_REGISTRY_ADDRESS || "";
+
+/** Get the Flow EVM explorer URL for a transaction hash */
+export function getFlowExplorerTxUrl(txHash: string): string {
+  return `${FLOW_EXPLORER_URL}/tx/${txHash}`;
+}
+
+/** Get the Flow EVM explorer URL for an address */
+export function getFlowExplorerAddressUrl(address: string): string {
+  return `${FLOW_EXPLORER_URL}/address/${address}`;
+}
+
+/** Get the deployed registry contract address */
+export function getRegistryAddress(): string {
+  return REGISTRY_ADDRESS;
+}
 
 /** Human-readable ABI for ethers v6 — no JSON file or build dependency */
 const REGISTRY_ABI = [
@@ -176,15 +192,16 @@ export function disconnectWallet(): FlowWalletState {
 
 /**
  * Register a dataset on-chain.
- * @returns The on-chain dataset ID
+ * @returns The on-chain dataset ID and transaction hash
  */
 export async function registerDatasetOnChain(
   dataCID: string,
   metadataCID: string,
   priceInFlow: string
-): Promise<number> {
+): Promise<{ id: number; txHash: string }> {
   if (_isDemo) {
-    return _demoRegisterDataset(dataCID, metadataCID, priceInFlow);
+    const id = _demoRegisterDataset(dataCID, metadataCID, priceInFlow);
+    return { id, txHash: `0xdemo${Date.now().toString(16)}${"0".repeat(40)}`.slice(0, 66) };
   }
 
   const { BrowserProvider, Contract, parseEther } = await import("ethers");
@@ -210,16 +227,17 @@ export async function registerDatasetOnChain(
 
   if (!event) throw new Error("DatasetRegistered event not found in receipt");
 
-  return Number(event.args.id);
+  return { id: Number(event.args.id), txHash: receipt.hash };
 }
 
 /**
  * Purchase access to a dataset.
+ * @returns Transaction hash
  */
-export async function purchaseAccess(datasetId: number): Promise<void> {
+export async function purchaseAccess(datasetId: number): Promise<string> {
   if (_isDemo) {
     _demoPurchaseAccess(datasetId);
-    return;
+    return `0xdemo${Date.now().toString(16)}${"0".repeat(40)}`.slice(0, 66);
   }
 
   const { BrowserProvider, Contract } = await import("ethers");
@@ -239,7 +257,8 @@ export async function purchaseAccess(datasetId: number): Promise<void> {
   // Send payment
   const writeContract = new Contract(REGISTRY_ADDRESS, REGISTRY_ABI, signer);
   const tx = await writeContract.purchaseAccess(datasetId, { value: price });
-  await tx.wait();
+  const receipt = await tx.wait();
+  return receipt.hash;
 }
 
 /**

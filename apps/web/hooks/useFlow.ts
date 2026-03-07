@@ -106,13 +106,13 @@ export function useFlow() {
       dataCID: string,
       metadataCID: string,
       priceInFlow: string
-    ): Promise<number> => {
+    ): Promise<{ id: number; txHash: string }> => {
       setIsLoading(true);
       setError(null);
 
       try {
         const { registerDatasetOnChain } = await import("@/lib/flow");
-        const id = await registerDatasetOnChain(
+        const result = await registerDatasetOnChain(
           dataCID,
           metadataCID,
           priceInFlow
@@ -121,7 +121,7 @@ export function useFlow() {
         // Auto-refresh stats after registration
         await refreshStats(wallet.address ?? undefined);
 
-        return id;
+        return result;
       } catch (err) {
         const message =
           err instanceof Error ? err.message : "Failed to register dataset";
@@ -134,15 +134,26 @@ export function useFlow() {
     [refreshStats, wallet.address]
   );
 
+  // List all on-chain datasets
+  const listDatasets = useCallback(async () => {
+    try {
+      const flow = await import("@/lib/flow");
+      return await flow.listOnChainDatasets();
+    } catch {
+      return [];
+    }
+  }, []);
+
   // Purchase access to a dataset
   const purchaseAccess = useCallback(
-    async (datasetId: number): Promise<void> => {
+    async (datasetId: number): Promise<string> => {
       setIsLoading(true);
       setError(null);
 
       try {
         const flow = await import("@/lib/flow");
-        await flow.purchaseAccess(datasetId);
+        const txHash = await flow.purchaseAccess(datasetId);
+        return txHash;
       } catch (err) {
         const message =
           err instanceof Error ? err.message : "Failed to purchase access";
@@ -175,6 +186,7 @@ export function useFlow() {
     registerDataset,
     purchaseAccess,
     checkAccess,
+    listDatasets,
     stats,
     wallet,
     connectWallet,

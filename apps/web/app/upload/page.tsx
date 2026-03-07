@@ -15,8 +15,10 @@ import EEGMetadataCard from "@/components/eeg/EEGMetadataCard";
 import EEGWaveformViewer from "@/components/eeg/EEGWaveformViewer";
 import StorageStatus from "@/components/upload/StorageStatus";
 import AccessConditionBuilder from "@/components/upload/AccessConditionBuilder";
+import Navbar from "@/components/Navbar";
 import { useStoracha } from "@/hooks/useStoracha";
 import { useLitProtocol } from "@/hooks/useLitProtocol";
+import { useFlow } from "@/hooks/useFlow";
 import { buildWalletCondition } from "@/lib/lit";
 import { describeConditions } from "@/lib/conditions";
 import type { AccessConditionItem } from "@/types";
@@ -31,7 +33,7 @@ import {
 
 // ── Types ──────────────────────────────────────────────────────────
 
-type WizardStep = 1 | 2 | 3 | 4;
+type WizardStep = 1 | 2 | 3 | 4 | 5;
 
 type AccessType = "public" | "restricted" | "private";
 
@@ -44,6 +46,11 @@ interface ParsedEEG {
   sampleRate: number;
   duration: number;
   metadata: DatasetMetadata;
+}
+
+interface OnChainResult {
+  id: number;
+  txHash: string;
 }
 
 // ── Sample datasets ────────────────────────────────────────────────
@@ -126,13 +133,19 @@ function buildMetadata(
   };
 }
 
+function truncateHash(hash: string): string {
+  if (hash.length <= 16) return hash;
+  return `${hash.slice(0, 10)}...${hash.slice(-6)}`;
+}
+
 // ── Step indicator ─────────────────────────────────────────────────
 
 const STEPS = [
   { num: 1, label: "Select Data" },
   { num: 2, label: "Access" },
   { num: 3, label: "Upload" },
-  { num: 4, label: "Complete" },
+  { num: 4, label: "Register" },
+  { num: 5, label: "Complete" },
 ] as const;
 
 function StepIndicator({ current }: { current: WizardStep }) {
@@ -260,7 +273,6 @@ function StepSelectData({
       setError(null);
 
       try {
-        // Use mock data for demo — no actual download needed
         const mockMetadata: DatasetMetadata = {
           ...MOCK_METADATA,
           id: crypto.randomUUID(),
@@ -272,9 +284,9 @@ function StepSelectData({
         };
 
         onParsed({
-          edf: null as unknown as EdfFile, // Mock mode
+          edf: null as unknown as EdfFile,
           filename: sample.filename,
-          fileSize: sample.duration * sample.channels * 160 * 2, // Approximate
+          fileSize: sample.duration * sample.channels * 160 * 2,
           signals: MOCK_SIGNALS.slice(0, Math.min(8, MOCK_SIGNALS.length)),
           channelNames: MOCK_CHANNEL_NAMES.slice(0, Math.min(8, MOCK_CHANNEL_NAMES.length)),
           sampleRate: MOCK_SAMPLE_RATE,
@@ -566,14 +578,168 @@ function StepReviewUpload({
 }
 
 // ════════════════════════════════════════════════════════════════════
-// STEP 4: Success
+// STEP 4: Register On-Chain
+// ════════════════════════════════════════════════════════════════════
+
+function StepRegisterOnChain({
+  uploadResult,
+  wallet,
+  isFlowDemo,
+  onConnect,
+  onRegister,
+  registering,
+  error,
+}: {
+  uploadResult: import("@/types").UploadResult;
+  wallet: import("@/types").FlowWalletState;
+  isFlowDemo: boolean;
+  onConnect: () => void;
+  onRegister: (price: string) => void;
+  registering: boolean;
+  error: string | null;
+}) {
+  const [price, setPrice] = useState("0.1");
+
+  return (
+    <div className="flex flex-col gap-6 max-w-2xl mx-auto">
+      <div className="text-center">
+        <h2 className="text-xl font-semibold text-slate-100">Register On-Chain</h2>
+        <p className="text-sm text-slate-400 mt-1">
+          Register your dataset on the Flow blockchain for discovery and access licensing
+        </p>
+      </div>
+
+      {isFlowDemo && (
+        <div className="rounded-lg bg-amber-500/10 border border-amber-500/20 px-4 py-3 flex items-start gap-3">
+          <svg className="w-5 h-5 text-amber-400 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+          </svg>
+          <div>
+            <p className="text-sm text-amber-200 font-medium">Demo Mode</p>
+            <p className="text-xs text-amber-300/70 mt-0.5">
+              Flow contract not configured. Registration will be simulated.
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* Upload result summary */}
+      <div className="rounded-xl border border-slate-800 bg-slate-900 p-4">
+        <h3 className="text-sm font-semibold text-slate-300 mb-3 flex items-center gap-2">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-emerald-400">
+            <path d="M20 6L9 17l-5-5" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+          Uploaded to Filecoin
+        </h3>
+        <div className="grid grid-cols-1 gap-2 text-xs">
+          <div>
+            <span className="text-slate-500">Data CID</span>
+            <p className="text-cyan-400 font-mono truncate">{uploadResult.dataCID}</p>
+          </div>
+          <div>
+            <span className="text-slate-500">Metadata CID</span>
+            <p className="text-violet-400 font-mono truncate">{uploadResult.metadataCID}</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Price input */}
+      <div className="rounded-xl border border-slate-800 bg-slate-900 p-4">
+        <h3 className="text-sm font-semibold text-slate-300 mb-3 flex items-center gap-2">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-cyan-400">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v12m-3-2.818l.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          Access Pricing
+        </h3>
+        <div className="flex items-center gap-3">
+          <div className="flex-1">
+            <label className="text-xs text-slate-500 mb-1 block">Price per access (FLOW)</label>
+            <div className="relative">
+              <input
+                type="number"
+                step="0.01"
+                min="0"
+                value={price}
+                onChange={(e) => setPrice(e.target.value)}
+                className="w-full px-3 py-2 rounded-lg bg-slate-950 border border-slate-700 text-sm text-white
+                           focus:outline-none focus:border-cyan-500/50 focus:ring-1 focus:ring-cyan-500/20"
+              />
+              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-slate-500">FLOW</span>
+            </div>
+          </div>
+          <div className="text-xs text-slate-500 pt-5">
+            {price === "0" || price === "" ? "Free access" : `${price} FLOW per 30-day license`}
+          </div>
+        </div>
+      </div>
+
+      {/* Wallet connection */}
+      {!wallet.isConnected && (
+        <div className="rounded-xl border border-slate-800 bg-slate-900 p-4 flex items-center justify-between">
+          <div>
+            <p className="text-sm font-medium text-slate-300">Wallet Required</p>
+            <p className="text-xs text-slate-500 mt-0.5">Connect your wallet to register on Flow</p>
+          </div>
+          <button
+            onClick={onConnect}
+            className="px-4 py-2 text-sm rounded-lg border border-cyan-500/40 text-cyan-400
+                       hover:bg-cyan-500/10 transition-colors"
+          >
+            Connect Wallet
+          </button>
+        </div>
+      )}
+
+      {/* Error */}
+      {error && (
+        <div className="rounded-lg bg-red-500/10 border border-red-500/20 px-4 py-3">
+          <p className="text-sm text-red-400">{error}</p>
+        </div>
+      )}
+
+      {/* Register button */}
+      <div className="flex justify-end pt-2">
+        <button
+          onClick={() => onRegister(price || "0")}
+          disabled={registering || (!wallet.isConnected && !isFlowDemo)}
+          className="group relative px-8 py-3 text-sm font-semibold rounded-lg
+                     bg-gradient-to-r from-violet-500 to-cyan-500 text-white
+                     hover:from-violet-400 hover:to-cyan-400
+                     disabled:opacity-50 disabled:cursor-not-allowed
+                     transition-all duration-200 shadow-lg shadow-violet-500/20"
+        >
+          <span className="flex items-center gap-2">
+            {registering ? (
+              <>
+                <Spinner size={16} />
+                Registering on Flow...
+              </>
+            ) : (
+              <>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M21 12a2.25 2.25 0 00-2.25-2.25H15a3 3 0 110-6h5.25A2.25 2.25 0 0121 6v6zm0 0v6a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 18V6" />
+                </svg>
+                Register On-Chain
+              </>
+            )}
+          </span>
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ════════════════════════════════════════════════════════════════════
+// STEP 5: Success
 // ════════════════════════════════════════════════════════════════════
 
 function StepSuccess({
   result,
+  onChainResult,
   onReset,
 }: {
   result: import("@/types").UploadResult;
+  onChainResult: OnChainResult | null;
   onReset: () => void;
 }) {
   const [showCheck, setShowCheck] = useState(false);
@@ -582,6 +748,10 @@ function StepSuccess({
     const t = setTimeout(() => setShowCheck(true), 200);
     return () => clearTimeout(t);
   }, []);
+
+  const explorerUrl = onChainResult
+    ? `https://evm-testnet.flowscan.io/tx/${onChainResult.txHash}`
+    : null;
 
   return (
     <div className="flex flex-col items-center gap-6 max-w-md mx-auto text-center py-8">
@@ -619,8 +789,7 @@ function StepSuccess({
       <div>
         <h2 className="text-2xl font-bold text-slate-100">Upload Complete</h2>
         <p className="text-sm text-slate-400 mt-2">
-          Your data is now stored on the decentralized web,
-          <br />backed by Filecoin&apos;s verifiable storage network.
+          Your data is stored on Filecoin and registered on Flow blockchain.
         </p>
       </div>
 
@@ -643,6 +812,38 @@ function StepSuccess({
           {result.metadataCID}
         </code>
       </div>
+
+      {/* On-chain registration result */}
+      {onChainResult && (
+        <div className="w-full rounded-xl border border-emerald-500/30 bg-emerald-500/5 p-4 flex flex-col gap-2">
+          <span className="text-[10px] text-emerald-400 uppercase tracking-wider font-medium">
+            Flow Transaction
+          </span>
+          <div className="flex items-center justify-between">
+            <code className="text-sm text-emerald-300 font-mono">
+              {truncateHash(onChainResult.txHash)}
+            </code>
+            {explorerUrl && (
+              <a
+                href={explorerUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-xs text-emerald-400 hover:text-emerald-300 transition-colors flex items-center gap-1"
+              >
+                View on Explorer
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6" strokeLinecap="round" strokeLinejoin="round" />
+                  <polyline points="15 3 21 3 21 9" />
+                  <line x1="10" y1="14" x2="21" y2="3" />
+                </svg>
+              </a>
+            )}
+          </div>
+          <p className="text-xs text-emerald-400/70">
+            On-chain ID: #{onChainResult.id}
+          </p>
+        </div>
+      )}
 
       {/* Action buttons */}
       <div className="flex flex-col sm:flex-row gap-3 w-full pt-2">
@@ -709,9 +910,20 @@ export default function UploadPage() {
   const [accessType, setAccessType] = useState<AccessType>("public");
   const [credentials, setCredentials] = useState("");
   const [accessConditions, setAccessConditions] = useState<AccessConditionItem[]>([]);
+  const [onChainResult, setOnChainResult] = useState<OnChainResult | null>(null);
+  const [registerError, setRegisterError] = useState<string | null>(null);
+  const [isRegistering, setIsRegistering] = useState(false);
 
   const { upload, getProof, progress, setProgress, resetProgress, isLoading } = useStoracha();
   const { encrypt, isReady: litReady, isDemo: litIsDemo } = useLitProtocol();
+  const {
+    wallet,
+    connectWallet,
+    disconnectWallet,
+    registerDataset,
+    isDemo: flowIsDemo,
+    isLoading: flowLoading,
+  } = useFlow();
 
   // Step 1 → 2
   const handleParsed = useCallback((data: ParsedEEG) => {
@@ -724,7 +936,6 @@ export default function UploadPage() {
     if (!parsed) return;
 
     try {
-      // Stage 1: Preparing
       setProgress({
         stage: "preparing",
         percent: 5,
@@ -744,10 +955,8 @@ export default function UploadPage() {
       let dataToUpload: Uint8Array;
 
       if (accessType === "public") {
-        // Public: no encryption, upload raw data
         dataToUpload = rawData;
       } else {
-        // Stage 2: Encrypting
         setProgress({
           stage: "encrypting",
           percent: 20,
@@ -756,7 +965,6 @@ export default function UploadPage() {
 
         let conditions = accessConditions;
 
-        // Private mode: create a self-only wallet condition as placeholder
         if (accessType === "private" && conditions.length === 0) {
           conditions = [
             buildWalletCondition(
@@ -766,11 +974,9 @@ export default function UploadPage() {
         }
 
         const envelope = await encrypt(rawData, conditions);
-        // Store the entire envelope as the data blob
         dataToUpload = new TextEncoder().encode(JSON.stringify(envelope));
       }
 
-      // Stages 3-6 are handled by the upload() function in the hook
       const result = await upload(
         dataToUpload,
         parsed.metadata,
@@ -779,6 +985,7 @@ export default function UploadPage() {
       );
 
       if (result) {
+        // Move to step 4 (Register On-Chain) instead of step 5
         setTimeout(() => setStep(4), 800);
       }
     } catch (e) {
@@ -794,6 +1001,31 @@ export default function UploadPage() {
     }
   }, [parsed, upload, setProgress, accessType, accessConditions, encrypt]);
 
+  // Step 4: Register on-chain
+  const handleRegister = useCallback(async (price: string) => {
+    const result = uploadResult;
+    if (!result) return;
+
+    setIsRegistering(true);
+    setRegisterError(null);
+
+    try {
+      const chainResult = await registerDataset(
+        result.dataCID,
+        result.metadataCID,
+        price
+      );
+      setOnChainResult(chainResult);
+      setStep(5);
+    } catch (e) {
+      setRegisterError(
+        e instanceof Error ? e.message : "Failed to register on-chain"
+      );
+    } finally {
+      setIsRegistering(false);
+    }
+  }, [registerDataset]);
+
   // Reset everything
   const handleReset = useCallback(() => {
     setStep(1);
@@ -801,37 +1033,37 @@ export default function UploadPage() {
     setAccessType("public");
     setCredentials("");
     setAccessConditions([]);
+    setOnChainResult(null);
+    setRegisterError(null);
     resetProgress();
+    if (typeof window !== "undefined") {
+      delete (window as unknown as Record<string, unknown>).__neurovaultMockResult;
+    }
   }, [resetProgress]);
 
   // Demo fallback: if upload errors due to missing config, create mock result
   useEffect(() => {
     if (progress.stage === "error" && progress.error?.includes("STORACHA")) {
-      // Demo mode — simulate success after a delay
       const mockCid = `bafybeig${crypto.randomUUID().replace(/-/g, "").slice(0, 50)}`;
       const mockMetaCid = `bafybeim${crypto.randomUUID().replace(/-/g, "").slice(0, 50)}`;
 
       console.warn("Demo mode: generating mock CIDs since Storacha is not configured");
 
-      // We can't set progress directly, so transition to step 4 with a mock result
       const mockTimeout = setTimeout(() => {
         resetProgress();
-        // Store mock result and go to step 4
         setParsed((prev) =>
           prev
             ? {
                 ...prev,
                 metadata: {
                   ...prev.metadata,
-                  // Tag mock data with generated CIDs via a side channel
                 },
               }
             : prev
         );
-        setStep(4);
+        setStep(4); // Go to register step
       }, 1500);
 
-      // Save mock CIDs so StepSuccess can display them
       (window as unknown as Record<string, unknown>).__neurovaultMockResult = {
         dataCID: mockCid,
         metadataCID: mockMetaCid,
@@ -853,20 +1085,16 @@ export default function UploadPage() {
 
   return (
     <main className="min-h-screen bg-slate-950">
+      <Navbar
+        wallet={wallet}
+        onConnect={connectWallet}
+        onDisconnect={disconnectWallet}
+        isLoading={flowLoading}
+      />
       <div className="max-w-4xl mx-auto px-4 py-8">
         {/* Header */}
-        <div className="flex items-center justify-between mb-6">
-          <Link
-            href="/"
-            className="text-sm text-slate-500 hover:text-slate-300 transition-colors flex items-center gap-1"
-          >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M15 18l-6-6 6-6" />
-            </svg>
-            NeuroVault
-          </Link>
+        <div className="text-center mb-6">
           <h1 className="text-lg font-semibold text-slate-100">Upload Dataset</h1>
-          <div className="w-20" /> {/* Spacer for centering */}
         </div>
 
         {/* Step indicator */}
@@ -898,7 +1126,6 @@ export default function UploadPage() {
                 onBack={() => setStep(1)}
                 isDemo={litIsDemo}
               />
-              {/* Condition summary */}
               {(accessType !== "public" || accessConditions.length > 0) && (
                 <div className="max-w-lg mx-auto mt-4 rounded-xl border border-slate-800 bg-slate-900/50 p-4">
                   <h4 className="text-xs font-semibold text-slate-400 mb-2">
@@ -944,7 +1171,23 @@ export default function UploadPage() {
           )}
 
           {step === 4 && uploadResult && (
-            <StepSuccess result={uploadResult} onReset={handleReset} />
+            <StepRegisterOnChain
+              uploadResult={uploadResult}
+              wallet={wallet}
+              isFlowDemo={flowIsDemo}
+              onConnect={connectWallet}
+              onRegister={handleRegister}
+              registering={isRegistering}
+              error={registerError}
+            />
+          )}
+
+          {step === 5 && uploadResult && (
+            <StepSuccess
+              result={uploadResult}
+              onChainResult={onChainResult}
+              onReset={handleReset}
+            />
           )}
         </div>
       </div>

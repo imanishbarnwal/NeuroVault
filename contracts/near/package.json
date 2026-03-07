@@ -1,0 +1,19 @@
+{
+  "name": "neurovault-near-contract",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build": "near-sdk-js build src/contract.ts build/dataset_matcher.wasm",
+    "test": "ava --timeout=60000",
+    "clean": "rm -rf build"
+  },
+  "dependencies": {
+    "near-sdk-js": "^2.0.0"
+  },
+  "devDependencies": {
+    "@near-js/accounts": "^1.4.0",
+    "ava": "^6.1.1",
+    "near-workspaces": "^4.0.0",
+    "typescript": "^5.7.2"
+  }
+}

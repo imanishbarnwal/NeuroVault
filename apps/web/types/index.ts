@@ -165,5 +165,54 @@ export interface FlowWalletState {
   chainId: number | null;
 }
 
+// ── NEAR Protocol / AI Matching ──────────────────────────────────
+
+/** A dataset matching query submitted to the NEAR contract */
+export interface NEARMatchQuery {
+  queryId: string;
+  caller: string;
+  naturalLanguage: string;
+  minChannels: number;
+  maxChannels: number;
+  minDuration: number;
+  maxDuration: number;
+  taskType: string;
+  submittedAt: number;
+}
+
+/** A single match result with transparent scoring */
+export interface NEARMatchResult {
+  datasetId: string;
+  dataCID: string;
+  overallScore: number;
+  channelScore: number;
+  durationScore: number;
+  taskScore: number;
+  textScore: number;
+  explanation: string;
+}
+
+/** Stored match results for a query */
+export interface NEARStoredMatch {
+  queryId: string;
+  results: NEARMatchResult[];
+  processedAt: number;
+}
+
+/** Response from the /api/match endpoint */
+export interface MatchResponse {
+  queryId: string;
+  results: NEARMatchResult[];
+  totalCandidates: number;
+  query: {
+    naturalLanguage: string;
+    minChannels: number;
+    maxChannels: number;
+    minDuration: number;
+    maxDuration: number;
+    taskType: string;
+  };
+}
+
 // Re-export eeg-utils types for convenience
 export type { DatasetMetadata };
