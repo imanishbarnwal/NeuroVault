@@ -15,15 +15,15 @@ The DatasetMatcher acts as an **on-chain oracle registry** for dataset matching:
 
 ### Change Methods (require transaction)
 
-- `submit_query({ naturalLanguage, minChannels, maxChannels, minDuration, maxDuration, taskType })` — Submit a new matching query. Returns a `queryId`.
-- `store_match_results({ queryId, results })` — Store scored match results for a query.
+- `submit_query({ naturalLanguage, minChannels, maxChannels, minDuration, maxDuration, taskType })` - Submit a new matching query. Returns a `queryId`.
+- `store_match_results({ queryId, results })` - Store scored match results for a query.
 
 ### View Methods (free, no transaction)
 
-- `get_matches({ queryId })` — Get match results for a query.
-- `get_query({ queryId })` — Get a specific query by ID.
-- `get_recent_queries({ limit })` — Get recent queries (newest first).
-- `get_query_count()` — Get total number of queries submitted.
+- `get_matches({ queryId })` - Get match results for a query.
+- `get_query({ queryId })` - Get a specific query by ID.
+- `get_recent_queries({ limit })` - Get recent queries (newest first).
+- `get_query_count()` - Get total number of queries submitted.
 
 ## Build
 

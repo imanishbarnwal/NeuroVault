@@ -2,7 +2,7 @@
 
 ## Cross-VM Composability
 
-Flow uniquely supports **cross-VM composability** — Cadence scripts can natively read and interact with Solidity contracts deployed on Flow EVM, without bridges or relayers.
+Flow uniquely supports **cross-VM composability** - Cadence scripts can natively read and interact with Solidity contracts deployed on Flow EVM, without bridges or relayers.
 
 ### ReadNeuroVaultRegistry.cdc
 
