@@ -38,7 +38,10 @@
       "WebFetch(domain:docs.worldcoin.org)",
       "WebFetch(domain:raw.githubusercontent.com)",
       "Bash(pnpm --filter web add:*)",
-      "Bash(pnpm --filter web build:*)"
+      "Bash(pnpm --filter web build:*)",
+      "Bash(pnpm --filter web remove:*)",
+      "Bash(xargs kill:*)",
+      "Bash(python3:*)"
     ]
   }
 }

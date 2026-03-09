@@ -453,6 +453,7 @@ function ConditionCard({
     nft: "NFT Gate",
     token: "Token Gate",
     timelock: "Timelock",
+    worldid: "World ID",
   };
 
   return (
@@ -474,7 +475,7 @@ function ConditionCard({
 
       <div className="flex flex-col gap-2">
         {/* Chain selector (for wallet, nft, token) */}
-        {entry.type !== "timelock" && (
+        {entry.type !== "timelock" && entry.type !== "worldid" && (
           <div>
             <label className="text-[10px] text-slate-500 mb-1 block">
               Chain
@@ -546,6 +547,18 @@ function ConditionCard({
                          text-xs text-slate-200 placeholder:text-slate-600
                          focus:outline-none focus:border-cyan-500/50 transition-colors font-mono"
             />
+          </div>
+        )}
+
+        {/* World ID info (no config needed) */}
+        {entry.type === "worldid" && (
+          <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-emerald-500/5 border border-emerald-500/20">
+            <svg className="w-4 h-4 text-emerald-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 01-1.043 3.296 3.745 3.745 0 01-3.296 1.043A3.745 3.745 0 0112 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 01-3.296-1.043 3.745 3.745 0 01-1.043-3.296A3.745 3.745 0 013 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 011.043-3.296 3.746 3.746 0 013.296-1.043A3.746 3.746 0 0112 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 013.296 1.043 3.746 3.746 0 011.043 3.296A3.745 3.745 0 0121 12z" />
+            </svg>
+            <p className="text-xs text-emerald-400/80">
+              Only verified humans can decrypt this data. No additional configuration needed.
+            </p>
           </div>
         )}
 

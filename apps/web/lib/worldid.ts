@@ -8,9 +8,15 @@
  * preventing sybil attacks on dataset uploads and access purchases.
  */
 
-import type { ISuccessResult } from "@worldcoin/idkit";
-
 // ── Types ──────────────────────────────────────────────────────────
+
+/** World ID proof result (matches @worldcoin/idkit ISuccessResult) */
+export interface WorldIDProofResult {
+  proof: string;
+  merkle_root: string;
+  nullifier_hash: string;
+  verification_level: string;
+}
 
 export interface WorldIDVerification {
   /** Whether the user has been verified as human */
@@ -72,7 +78,7 @@ export function clearVerification(): void {
  * the proof is validated server-side before showing success.
  */
 export async function verifyProofOnBackend(
-  proof: ISuccessResult
+  proof: WorldIDProofResult
 ): Promise<WorldIDVerification> {
   const res = await fetch("/api/verify-world-id", {
     method: "POST",

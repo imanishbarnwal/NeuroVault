@@ -1,8 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
-import type { ISuccessResult } from "@worldcoin/idkit";
-import type { WorldIDVerification } from "@/lib/worldid";
+import type { WorldIDVerification, WorldIDProofResult } from "@/lib/worldid";
 
 export function useWorldID() {
   const [verification, setVerification] = useState<WorldIDVerification | null>(
@@ -29,7 +28,7 @@ export function useWorldID() {
   }, []);
 
   /** Called by IDKitWidget's handleVerify — validates proof server-side */
-  const handleVerify = useCallback(async (proof: ISuccessResult) => {
+  const handleVerify = useCallback(async (proof: WorldIDProofResult) => {
     setIsLoading(true);
     setError(null);
 
