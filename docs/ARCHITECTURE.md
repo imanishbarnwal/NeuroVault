@@ -6,7 +6,7 @@ NeuroVault is a privacy-preserving neural data marketplace built as a monorepo w
 
 1. **`apps/web`** - Next.js 14 frontend (App Router, client + server components)
 2. **`packages/eeg-utils`** - Shared EEG data processing library (TypeScript)
-3. **`contracts/`** - Smart contracts for Flow (Solidity + Cadence) and NEAR (near-sdk-js)
+3. **`contracts/`** - Smart contracts for Flow (Solidity) and NEAR (near-sdk-js)
 
 All integrations support dual-mode operation (real + demo fallback) for development flexibility.
 
@@ -210,11 +210,6 @@ checkAccess(user, datasetId) view -> bool
 - Payment function uses `call{value}` with reentrancy protection
 - Overpayment automatically refunded to buyer
 - Contributors always get paid before license is created
-
-**Cross-VM Composability:**
-- A Cadence script (`ReadNeuroVaultRegistry.cdc`) demonstrates reading Solidity state from Cadence
-- Uses `EVM.run()` to execute ABI-encoded calls against the EVM contract
-- No bridges or relayers needed, native Flow cross-VM capability
 
 **Frontend Pattern:**
 ```

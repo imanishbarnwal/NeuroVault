@@ -50,7 +50,6 @@ All notable changes to the NeuroVault project, built during the PL Genesis: Fron
   - 30-day access license issuance with automatic payment distribution
   - ReentrancyGuard protection on payment functions
   - View functions: getDataset, listDatasets, checkAccess, getContributorEarnings
-- **Cross-VM Cadence Script** - Reads Solidity contract state natively from Cadence using EVM.run()
 - **Frontend Integration** - ethers v6 provider, MetaMask wallet connection with auto chain switching
 - **Hardhat Test Suite** - Comprehensive tests for registration, licensing, payments, and access control
 

@@ -89,9 +89,9 @@ All EEG data is encrypted client-side before upload using Lit Protocol's thresho
 
 ### Flow - On-Chain Registry, Licensing & Payments
 
-The `NeuroVaultRegistry` Solidity contract (deployed to Flow EVM Testnet, Chain 545) is the economic backbone. It handles dataset registration (mapping CIDs to contributor addresses and prices), 30-day access license issuance, and automatic contributor payments using `ReentrancyGuard` for security. When a researcher purchases access, the FLOW payment goes directly to the contributor with overpayment refunded. A Cadence script demonstrates Flow's cross-VM composability by reading Solidity contract state natively, no bridges required.
+The `NeuroVaultRegistry` Solidity contract (deployed to Flow EVM Testnet, Chain 545) is the economic backbone. It handles dataset registration (mapping CIDs to contributor addresses and prices), 30-day access license issuance, and automatic contributor payments using `ReentrancyGuard` for security. When a researcher purchases access, the FLOW payment goes directly to the contributor with overpayment refunded.
 
-**Key files:** `contracts/flow/solidity/contracts/NeuroVaultRegistry.sol`, `contracts/flow/cadence/scripts/ReadNeuroVaultRegistry.cdc`, `apps/web/lib/flow.ts`
+**Key files:** `contracts/flow/solidity/contracts/NeuroVaultRegistry.sol`, `apps/web/lib/flow.ts`
 
 ### NEAR Protocol - AI-Powered Dataset Matching
 
@@ -201,7 +201,6 @@ NeuroVault/
 │   └── types/                   # TypeScript type definitions
 ├── contracts/
 │   ├── flow/solidity/           # NeuroVaultRegistry.sol (Hardhat + OpenZeppelin v5)
-│   ├── flow/cadence/            # Cross-VM Cadence script
 │   └── near/                    # DatasetMatcher contract (near-sdk-js)
 ├── packages/eeg-utils/          # EDF+ parser, FFT, feature extraction
 └── docs/                        # Architecture documentation
