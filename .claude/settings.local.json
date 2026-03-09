@@ -28,7 +28,17 @@
       "WebFetch(domain:developer.litprotocol.com)",
       "Bash(git -C /Users/imanishbarnwal/Downloads/NeuroVault log --oneline)",
       "Bash(npx hardhat:*)",
-      "Bash(near contract deploy:*)"
+      "Bash(near contract deploy:*)",
+      "Bash(near contract call-function as-read-only:*)",
+      "WebFetch(domain:www.impulse-ai.com)",
+      "WebFetch(domain:impulse-ai.webflow.io)",
+      "WebFetch(domain:cdn.prod.website-files.com)",
+      "Bash(node:*)",
+      "WebFetch(domain:docs.world.org)",
+      "WebFetch(domain:docs.worldcoin.org)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "Bash(pnpm --filter web add:*)",
+      "Bash(pnpm --filter web build:*)"
     ]
   }
 }

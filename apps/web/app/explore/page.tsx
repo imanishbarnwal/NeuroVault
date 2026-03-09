@@ -5,11 +5,14 @@ import Link from "next/link";
 import type { DatasetEntry, EncryptedEnvelope, FlowDataset, NEARMatchResult } from "@/types";
 import EncryptionStatus from "@/components/upload/EncryptionStatus";
 import EEGWaveformViewer from "@/components/eeg/EEGWaveformViewer";
+import MLClassifier from "@/components/explore/MLClassifier";
+import WorldIDButton from "@/components/WorldIDButton";
 import Navbar from "@/components/Navbar";
 import { useLitProtocol } from "@/hooks/useLitProtocol";
 import { useStoracha } from "@/hooks/useStoracha";
 import { useFlow } from "@/hooks/useFlow";
 import { useNEAR } from "@/hooks/useNEAR";
+import { useWorldID } from "@/hooks/useWorldID";
 import {
   MOCK_SIGNALS,
   CHANNEL_NAMES as MOCK_CHANNEL_NAMES,
@@ -131,6 +134,7 @@ function DatasetDetail({
 }) {
   const { decrypt, isDemo: litIsDemo } = useLitProtocol();
   const { retrieve } = useStoracha();
+  const { isVerified: worldIDVerified } = useWorldID();
   const [decrypting, setDecrypting] = useState(false);
   const [decryptError, setDecryptError] = useState<string | null>(null);
   const [eegData, setEegData] = useState<DecryptedEEG | null>(null);
@@ -254,19 +258,28 @@ function DatasetDetail({
 
       {/* Waveform viewer or purchase/decrypt button */}
       {eegData ? (
-        <div className="rounded-lg border border-slate-800 p-4">
-          <h4 className="text-xs font-semibold text-slate-400 mb-3">
-            EEG Waveform
-          </h4>
-          <EEGWaveformViewer
+        <>
+          <div className="rounded-lg border border-slate-800 p-4">
+            <h4 className="text-xs font-semibold text-slate-400 mb-3">
+              EEG Waveform
+            </h4>
+            <EEGWaveformViewer
+              signals={eegData.signals}
+              channelNames={eegData.channelNames}
+              sampleRate={eegData.sampleRate}
+              duration={eegData.duration}
+              windowSeconds={Math.min(4, eegData.duration)}
+              visibleChannels={4}
+            />
+          </div>
+
+          {/* ML Classification */}
+          <MLClassifier
             signals={eegData.signals}
             channelNames={eegData.channelNames}
             sampleRate={eegData.sampleRate}
-            duration={eegData.duration}
-            windowSeconds={Math.min(4, eegData.duration)}
-            visibleChannels={4}
           />
-        </div>
+        </>
       ) : (
         <div className="flex flex-col items-center gap-3 py-6">
           {decryptError && (
@@ -282,9 +295,15 @@ function DatasetDetail({
               <p className="text-sm text-slate-300 mb-3">
                 Purchase a 30-day access license to decrypt this dataset.
               </p>
+              {!worldIDVerified && (
+                <div className="mb-3 flex items-center justify-center gap-2">
+                  <span className="text-xs text-amber-400">Verify your humanity first:</span>
+                  <WorldIDButton compact />
+                </div>
+              )}
               <button
                 onClick={handlePurchase}
-                disabled={isPurchasing || !walletConnected}
+                disabled={isPurchasing || !walletConnected || !worldIDVerified}
                 className="px-6 py-2 text-sm font-medium rounded-lg bg-violet-500 text-white
                            hover:bg-violet-400 disabled:opacity-50 disabled:cursor-not-allowed transition-colors
                            flex items-center gap-2 mx-auto"

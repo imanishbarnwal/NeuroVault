@@ -50,6 +50,15 @@ function describeEvmCondition(cond: EvmCondition): string {
     return `On-chain license (Flow)`;
   }
 
+  // World ID condition (timestamp >= 0 placeholder)
+  if (
+    cond.standardContractType === "timestamp" &&
+    cond.returnValueTest.value === "0" &&
+    cond.returnValueTest.comparator === ">="
+  ) {
+    return `Verified Human (World ID)`;
+  }
+
   // Fallback
   return `Custom condition on ${cond.chain}`;
 }

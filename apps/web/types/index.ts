@@ -214,5 +214,19 @@ export interface MatchResponse {
   };
 }
 
+// ── World ID / Proof of Personhood ──────────────────────────────
+
+/** Stored World ID verification state */
+export interface WorldIDState {
+  /** Whether the user has verified as human */
+  isVerified: boolean;
+  /** Anonymized unique human identifier */
+  nullifierHash: string | null;
+  /** Verification level achieved */
+  verificationLevel: string | null;
+  /** When verification occurred (ISO string) */
+  verifiedAt: string | null;
+}
+
 // Re-export eeg-utils types for convenience
 export type { DatasetMetadata };

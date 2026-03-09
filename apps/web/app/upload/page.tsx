@@ -16,9 +16,11 @@ import EEGWaveformViewer from "@/components/eeg/EEGWaveformViewer";
 import StorageStatus from "@/components/upload/StorageStatus";
 import AccessConditionBuilder from "@/components/upload/AccessConditionBuilder";
 import Navbar from "@/components/Navbar";
+import WorldIDButton from "@/components/WorldIDButton";
 import { useStoracha } from "@/hooks/useStoracha";
 import { useLitProtocol } from "@/hooks/useLitProtocol";
 import { useFlow } from "@/hooks/useFlow";
+import { useWorldID } from "@/hooks/useWorldID";
 import { buildWalletCondition } from "@/lib/lit";
 import { describeConditions } from "@/lib/conditions";
 import type { AccessConditionItem } from "@/types";
@@ -924,6 +926,7 @@ export default function UploadPage() {
     isDemo: flowIsDemo,
     isLoading: flowLoading,
   } = useFlow();
+  const { isVerified: worldIDVerified } = useWorldID();
 
   // Step 1 → 2
   const handleParsed = useCallback((data: ParsedEEG) => {
@@ -1158,16 +1161,33 @@ export default function UploadPage() {
           )}
 
           {step === 3 && parsed && (
-            <StepReviewUpload
-              parsed={parsed}
-              accessType={accessType}
-              credentials={credentials}
-              onUpload={handleUpload}
-              onBack={() => setStep(2)}
-              uploading={isLoading}
-              progress={progress}
-              onFetchProof={getProof}
-            />
+            <>
+              {/* World ID verification gate */}
+              {!worldIDVerified && (
+                <div className="max-w-2xl mx-auto mb-4 rounded-xl border border-amber-500/20 bg-amber-500/5 p-4 flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <svg className="w-5 h-5 text-amber-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126z" />
+                    </svg>
+                    <div>
+                      <p className="text-sm text-amber-200 font-medium">Verify your humanity</p>
+                      <p className="text-xs text-amber-300/60 mt-0.5">Prove you are a unique human to upload data (prevents sybil attacks)</p>
+                    </div>
+                  </div>
+                  <WorldIDButton />
+                </div>
+              )}
+              <StepReviewUpload
+                parsed={parsed}
+                accessType={accessType}
+                credentials={credentials}
+                onUpload={handleUpload}
+                onBack={() => setStep(2)}
+                uploading={isLoading}
+                progress={progress}
+                onFetchProof={getProof}
+              />
+            </>
           )}
 
           {step === 4 && uploadResult && (

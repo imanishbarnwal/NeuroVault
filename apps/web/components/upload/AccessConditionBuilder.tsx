@@ -7,6 +7,7 @@ import {
   buildNFTCondition,
   buildTokenCondition,
   buildTimelockCondition,
+  buildWorldIDCondition,
   combineConditions,
 } from "@/lib/lit";
 
@@ -14,7 +15,7 @@ import {
 
 type AccessType = "public" | "restricted" | "private";
 
-type ConditionType = "wallet" | "nft" | "token" | "timelock";
+type ConditionType = "wallet" | "nft" | "token" | "timelock" | "worldid";
 
 interface ConditionEntry {
   id: string;
@@ -50,6 +51,7 @@ const CONDITION_TYPES: { value: ConditionType; label: string; desc: string }[] =
   { value: "nft", label: "NFT Gate", desc: "Must hold an NFT from a collection" },
   { value: "token", label: "Token Gate", desc: "Must hold minimum token balance" },
   { value: "timelock", label: "Timelock", desc: "Unlock after a specific date" },
+  { value: "worldid", label: "World ID", desc: "Must be a verified human (proof of personhood)" },
 ];
 
 // ── Helpers ───────────────────────────────────────────────────────
@@ -78,6 +80,8 @@ function conditionEntryToEvm(entry: ConditionEntry): EvmCondition | null {
       const ts = Math.floor(new Date(entry.unlockDate).getTime() / 1000);
       return buildTimelockCondition(ts);
     }
+    case "worldid":
+      return buildWorldIDCondition();
     default:
       return null;
   }

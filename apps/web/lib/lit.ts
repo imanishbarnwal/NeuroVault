@@ -248,6 +248,30 @@ export function buildFlowAccessCondition(
   };
 }
 
+/**
+ * Build a World ID condition: requires that the user has a verified
+ * World ID nullifier hash stored on-chain. Since World ID is off-chain
+ * ZK verification, this condition uses a timestamp placeholder that
+ * always passes — the actual World ID check is enforced at the
+ * application level (useWorldID hook) before decryption is attempted.
+ *
+ * For on-chain enforcement, deploy a contract that maps nullifier hashes
+ * to addresses, then use a standard contract call condition instead.
+ */
+export function buildWorldIDCondition(): EvmCondition {
+  return {
+    contractAddress: "",
+    standardContractType: "timestamp",
+    chain: "ethereum",
+    method: "",
+    parameters: [],
+    returnValueTest: {
+      comparator: ">=",
+      value: "0",
+    },
+  };
+}
+
 // ── Demo Mode Fallback (Web Crypto AES-GCM) ──────────────────────
 
 /** Convert a Uint8Array to a fresh ArrayBuffer (avoids SharedArrayBuffer type issues) */

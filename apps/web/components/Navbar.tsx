@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import WorldIDButton from "@/components/WorldIDButton";
 import type { FlowWalletState } from "@/types";
 
 function truncateAddress(addr: string): string {
@@ -67,6 +68,9 @@ export default function Navbar({
           >
             Upload
           </Link>
+
+          {/* World ID verification status */}
+          <WorldIDButton compact />
 
           {/* Wallet button */}
           {wallet?.isConnected && wallet.address ? (
