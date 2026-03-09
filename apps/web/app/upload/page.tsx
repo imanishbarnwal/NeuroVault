@@ -1,5 +1,6 @@
 "use client";
 
+import { toast } from "sonner";
 import {
   useState,
   useCallback,
@@ -15,7 +16,7 @@ import EEGMetadataCard from "@/components/eeg/EEGMetadataCard";
 import EEGWaveformViewer from "@/components/eeg/EEGWaveformViewer";
 import StorageStatus from "@/components/upload/StorageStatus";
 import AccessConditionBuilder from "@/components/upload/AccessConditionBuilder";
-import Navbar from "@/components/Navbar";
+import Navbar from "@/components/layout/Navbar";
 import WorldIDButton from "@/components/WorldIDButton";
 import { useStoracha } from "@/hooks/useStoracha";
 import { useLitProtocol } from "@/hooks/useLitProtocol";
@@ -988,11 +989,13 @@ export default function UploadPage() {
       );
 
       if (result) {
+        toast.success("Dataset encrypted & uploaded to Filecoin!");
         // Move to step 4 (Register On-Chain) instead of step 5
         setTimeout(() => setStep(4), 800);
       }
     } catch (e) {
       console.error("Upload failed:", e);
+      toast.error("Upload failed — check console for details");
       if (
         e instanceof Error &&
         (e.message.includes("STORACHA") || e.message.includes("Missing"))
@@ -1019,11 +1022,12 @@ export default function UploadPage() {
         price
       );
       setOnChainResult(chainResult);
+      toast.success(`Registered on-chain as Dataset #${chainResult.id}`);
       setStep(5);
     } catch (e) {
-      setRegisterError(
-        e instanceof Error ? e.message : "Failed to register on-chain"
-      );
+      const msg = e instanceof Error ? e.message : "Failed to register on-chain";
+      setRegisterError(msg);
+      toast.error(msg);
     } finally {
       setIsRegistering(false);
     }

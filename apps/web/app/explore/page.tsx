@@ -1,5 +1,6 @@
 "use client";
 
+import { toast } from "sonner";
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import type { DatasetEntry, EncryptedEnvelope, FlowDataset, NEARMatchResult } from "@/types";
@@ -7,7 +8,7 @@ import EncryptionStatus from "@/components/upload/EncryptionStatus";
 import EEGWaveformViewer from "@/components/eeg/EEGWaveformViewer";
 import MLClassifier from "@/components/explore/MLClassifier";
 import WorldIDButton from "@/components/WorldIDButton";
-import Navbar from "@/components/Navbar";
+import Navbar from "@/components/layout/Navbar";
 import { useLitProtocol } from "@/hooks/useLitProtocol";
 import { useStoracha } from "@/hooks/useStoracha";
 import { useFlow } from "@/hooks/useFlow";
@@ -733,6 +734,9 @@ export default function ExplorePage() {
     setIsPurchasing(true);
     try {
       await purchaseAccess(datasetId);
+      toast.success(`Access granted to Dataset #${datasetId}`);
+    } catch {
+      toast.error("Purchase failed — please try again");
     } finally {
       setIsPurchasing(false);
     }
