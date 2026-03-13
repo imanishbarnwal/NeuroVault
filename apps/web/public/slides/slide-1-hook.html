@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NeuroVault - Hook</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #020617;
+      color: #f1f5f9;
+      font-family: 'Inter', sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      overflow: hidden;
+    }
+
+    /* Animated EEG waveform background */
+    .bg-waves {
+      position: fixed;
+      inset: 0;
+      opacity: 0.06;
+      z-index: 0;
+    }
+    .bg-waves svg { width: 100%; height: 100%; }
+
+    .container {
+      position: relative;
+      z-index: 1;
+      text-align: center;
+      max-width: 900px;
+      padding: 60px;
+      animation: fadeUp 1.2s ease-out;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(40px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 6px 18px;
+      border: 1px solid #06b6d4;
+      border-radius: 999px;
+      color: #06b6d4;
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 48px;
+      animation: fadeUp 1.2s ease-out 0.2s both;
+    }
+
+    h1 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 64px;
+      font-weight: 700;
+      line-height: 1.15;
+      letter-spacing: -1px;
+      margin-bottom: 32px;
+      animation: fadeUp 1.2s ease-out 0.4s both;
+    }
+
+    h1 .highlight {
+      background: linear-gradient(135deg, #06b6d4, #8b5cf6);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    p {
+      font-size: 22px;
+      color: #94a3b8;
+      line-height: 1.6;
+      max-width: 680px;
+      margin: 0 auto;
+      animation: fadeUp 1.2s ease-out 0.6s both;
+    }
+
+    .glow {
+      position: fixed;
+      width: 500px;
+      height: 500px;
+      border-radius: 50%;
+      filter: blur(120px);
+      opacity: 0.12;
+      z-index: 0;
+    }
+    .glow-cyan { background: #06b6d4; top: -100px; right: -100px; }
+    .glow-violet { background: #8b5cf6; bottom: -100px; left: -100px; }
+  </style>
+</head>
+<body>
+  <div class="glow glow-cyan"></div>
+  <div class="glow glow-violet"></div>
+
+  <div class="container">
+    <div class="badge">NeuroVault</div>
+    <h1>Brain data is too sensitive<br>to share... <span class="highlight">until now.</span></h1>
+    <p>The most personal data on earth deserves the strongest privacy guarantees. Encrypted, decentralized, and under your control.</p>
+  </div>
+</body>
+</html>

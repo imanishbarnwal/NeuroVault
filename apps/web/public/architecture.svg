@@ -1,0 +1,208 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 700" font-family="'Inter', 'Segoe UI', system-ui, sans-serif">
+  <defs>
+    <linearGradient id="bgGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#0f172a"/>
+      <stop offset="100%" stop-color="#020617"/>
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="3" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <marker id="arrowCyan" viewBox="0 0 10 7" refX="10" refY="3.5" markerWidth="8" markerHeight="6" orient="auto-start-reverse">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#06b6d4"/>
+    </marker>
+    <marker id="arrowViolet" viewBox="0 0 10 7" refX="10" refY="3.5" markerWidth="8" markerHeight="6" orient="auto-start-reverse">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#8b5cf6"/>
+    </marker>
+    <marker id="arrowEmerald" viewBox="0 0 10 7" refX="10" refY="3.5" markerWidth="8" markerHeight="6" orient="auto-start-reverse">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#10b981"/>
+    </marker>
+    <marker id="arrowAmber" viewBox="0 0 10 7" refX="10" refY="3.5" markerWidth="8" markerHeight="6" orient="auto-start-reverse">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#f59e0b"/>
+    </marker>
+    <marker id="arrowRose" viewBox="0 0 10 7" refX="10" refY="3.5" markerWidth="8" markerHeight="6" orient="auto-start-reverse">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#f43f5e"/>
+    </marker>
+    <marker id="arrowBlue" viewBox="0 0 10 7" refX="10" refY="3.5" markerWidth="8" markerHeight="6" orient="auto-start-reverse">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#3b82f6"/>
+    </marker>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1200" height="700" fill="url(#bgGrad)" rx="12"/>
+
+  <!-- Subtle grid -->
+  <g opacity="0.04" stroke="#94a3b8" stroke-width="0.5">
+    <line x1="0" y1="100" x2="1200" y2="100"/>
+    <line x1="0" y1="200" x2="1200" y2="200"/>
+    <line x1="0" y1="300" x2="1200" y2="300"/>
+    <line x1="0" y1="400" x2="1200" y2="400"/>
+    <line x1="0" y1="500" x2="1200" y2="500"/>
+    <line x1="0" y1="600" x2="1200" y2="600"/>
+    <line x1="200" y1="0" x2="200" y2="700"/>
+    <line x1="400" y1="0" x2="400" y2="700"/>
+    <line x1="600" y1="0" x2="600" y2="700"/>
+    <line x1="800" y1="0" x2="800" y2="700"/>
+    <line x1="1000" y1="0" x2="1000" y2="700"/>
+  </g>
+
+  <!-- Title -->
+  <text x="600" y="48" text-anchor="middle" fill="#f1f5f9" font-size="26" font-weight="700" letter-spacing="3">NEUROVAULT</text>
+  <text x="600" y="72" text-anchor="middle" fill="#94a3b8" font-size="13" letter-spacing="1">PRIVACY-PRESERVING NEURAL DATA COMMONS</text>
+
+  <!-- ==================== -->
+  <!-- CENTER: Frontend/App -->
+  <!-- ==================== -->
+  <rect x="460" y="290" width="280" height="100" rx="14" fill="#1e293b" stroke="#06b6d4" stroke-width="2" filter="url(#glow)"/>
+  <text x="600" y="330" text-anchor="middle" fill="#06b6d4" font-size="18" font-weight="700">NeuroVault App</text>
+  <text x="600" y="352" text-anchor="middle" fill="#94a3b8" font-size="12">Next.js 14 + TypeScript</text>
+  <text x="600" y="372" text-anchor="middle" fill="#64748b" font-size="11">EDF Parser | EEG Viewer | ML Classifier</text>
+
+  <!-- ==================== -->
+  <!-- TOP LEFT: World ID   -->
+  <!-- ==================== -->
+  <rect x="60" y="120" width="220" height="90" rx="12" fill="#1e293b" stroke="#f43f5e" stroke-width="1.5"/>
+  <!-- World ID logo (orb) -->
+  <g transform="translate(78, 138)">
+    <circle cx="17" cy="17" r="15" fill="none" stroke="#FFFFFF" stroke-width="2.5" opacity="0.9"/>
+    <line x1="2" y1="17" x2="32" y2="17" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="round" opacity="0.9"/>
+    <ellipse cx="17" cy="17" rx="8" ry="15" fill="none" stroke="#FFFFFF" stroke-width="2" opacity="0.6"/>
+  </g>
+  <text x="180" y="155" text-anchor="middle" fill="#f1f5f9" font-size="15" font-weight="600">World ID</text>
+  <text x="170" y="180" text-anchor="middle" fill="#64748b" font-size="10">Proof of Personhood</text>
+  <text x="170" y="195" text-anchor="middle" fill="#475569" font-size="9">Sybil Prevention</text>
+
+  <!-- Arrow: World ID -> App -->
+  <line x1="280" y1="195" x2="470" y2="300" stroke="#f43f5e" stroke-width="1.5" stroke-dasharray="6,3" marker-end="url(#arrowRose)" opacity="0.7"/>
+  <text x="355" y="238" text-anchor="middle" fill="#f43f5e" font-size="9" opacity="0.8" transform="rotate(-20, 355, 238)">ZK Proof</text>
+
+  <!-- ======================== -->
+  <!-- TOP CENTER: Lit Protocol -->
+  <!-- ======================== -->
+  <rect x="440" y="120" width="220" height="90" rx="12" fill="#1e293b" stroke="#8b5cf6" stroke-width="1.5"/>
+  <!-- Lit Protocol logo (flame) -->
+  <g transform="translate(458, 136) scale(0.155)">
+    <path d="M26.419 63.682C26.419 63.682 26.0502 70.6889 12.4891 93.545C-3.21771 120.03 -4.69284 151.033 11.3492 176.915C45.1682 231.478 136.953 230.447 170.982 176.948C184.141 156.255 187.912 132.51 183.42 108.388C183.42 108.388 172.532 58.0245 135.352 26.2674C135.939 26.7619 137.381 33.5005 137.657 36.3753C138.504 45.2094 137.674 54.4708 134.715 62.8774C132.544 69.0545 129.536 74.4018 124.448 78.5255C124.448 77.0839 124.088 74.5024 124.079 73.6391C123.836 56.0465 117.03 39.7531 105.942 26.0746C96.253 14.1395 82.9684 5.99271 68.9798 0C69.3318 1.20692 69.9856 6.21063 70.0778 7.19964C70.7986 15.5056 70.9327 27.139 69.8431 35.4366C68.7535 43.7342 66.8845 48.2518 64.3449 56.0298C60.4978 67.8224 55.2594 76.5642 48.6214 87.0494C47.3977 88.9771 43.7434 94.2658 41.7905 96.9395C41.7905 96.9395 38.4296 75.6842 26.4274 63.682H26.419Z" fill="white"/>
+  </g>
+  <text x="570" y="155" text-anchor="middle" fill="#f1f5f9" font-size="15" font-weight="600">Lit Protocol</text>
+  <text x="550" y="180" text-anchor="middle" fill="#64748b" font-size="10">Threshold Encryption</text>
+  <text x="550" y="195" text-anchor="middle" fill="#475569" font-size="9">datil-dev Network</text>
+
+  <!-- Arrow: App <-> Lit -->
+  <line x1="560" y1="210" x2="575" y2="290" stroke="#8b5cf6" stroke-width="1.5" marker-end="url(#arrowViolet)" opacity="0.7"/>
+  <line x1="540" y1="290" x2="530" y2="210" stroke="#8b5cf6" stroke-width="1.5" marker-end="url(#arrowViolet)" opacity="0.7"/>
+  <text x="520" y="255" text-anchor="middle" fill="#8b5cf6" font-size="9" opacity="0.8">Encrypt</text>
+  <text x="585" y="255" text-anchor="middle" fill="#8b5cf6" font-size="9" opacity="0.8">Decrypt</text>
+
+  <!-- ========================= -->
+  <!-- TOP RIGHT: Storacha       -->
+  <!-- ========================= -->
+  <rect x="820" y="120" width="220" height="90" rx="12" fill="#1e293b" stroke="#06b6d4" stroke-width="1.5"/>
+  <!-- Filecoin logo (blue circle with white F) -->
+  <g transform="translate(838, 138) scale(0.85)">
+    <path d="M20,40C9,40,0,31,0,19.9C0.1,8.9,9-0.1,20.1,0C31.1,0.1,40,9,40,20.2C39.9,31.1,31,40,20,40" fill="#0090FF"/>
+    <path d="M21.9,17.6l-0.6,3.2l5.7,0.8l-0.4,1.5L21,22.3c-0.4,1.3-0.6,2.7-1.1,3.9c-0.5,1.4-1,2.8-1.6,4.1c-0.8,1.7-2.2,2.9-4.1,3.2c-1.1,0.2-2.3,0.1-3.2-0.6c-0.3-0.2-0.6-0.6-0.6-0.9c0-0.4,0.2-0.9,0.5-1.1c0.2-0.1,0.7,0,1,0.1c0.3,0.3,0.6,0.7,0.8,1.1c0.6,0.8,1.4,0.9,2.2,0.3c0.9-0.8,1.4-1.9,1.7-3c0.6-2.4,1.2-4.7,1.7-7.1v-0.4L13,21.1l0.2-1.5l5.5,0.8l0.7-3.1l-5.7-0.9l0.2-1.6l5.9,0.8c0.2-0.6,0.3-1.1,0.5-1.6c0.5-1.8,1-3.6,2.2-5.2s2.6-2.6,4.7-2.5c0.9,0,1.8,0.3,2.4,1c0.1,0.1,0.3,0.3,0.3,0.5c0,0.4,0,0.9-0.3,1.2c-0.4,0.3-0.9,0.2-1.3-0.2c-0.3-0.3-0.5-0.6-0.8-0.9C26.9,7.1,26,7,25.3,7.7c-0.5,0.5-1,1.2-1.3,1.9c-0.7,2.1-1.2,4.3-1.9,6.5l5.5,0.8l-0.4,1.5L21.9,17.6" fill="#FFFFFF"/>
+  </g>
+  <text x="950" y="150" text-anchor="middle" fill="#f1f5f9" font-size="15" font-weight="600">Storacha</text>
+  <text x="950" y="170" text-anchor="middle" fill="#64748b" font-size="10">Decentralized Storage</text>
+  <text x="930" y="195" text-anchor="middle" fill="#475569" font-size="9">Filecoin Network | CIDs</text>
+
+  <!-- Arrow: App -> Storacha -->
+  <line x1="740" y1="310" x2="830" y2="195" stroke="#06b6d4" stroke-width="1.5" marker-end="url(#arrowCyan)" opacity="0.7"/>
+  <text x="800" y="243" text-anchor="middle" fill="#06b6d4" font-size="9" opacity="0.8" transform="rotate(-35, 800, 243)">Upload CID</text>
+
+  <!-- ========================= -->
+  <!-- BOTTOM LEFT: NEAR         -->
+  <!-- ========================= -->
+  <rect x="60" y="480" width="220" height="90" rx="12" fill="#1e293b" stroke="#f59e0b" stroke-width="1.5"/>
+  <!-- NEAR logo (N shape) -->
+  <g transform="translate(78, 498) scale(0.378)">
+    <path fill="#FFFFFF" d="M72.2,4.6L53.4,32.5c-1.3,1.9,1.2,4.2,3,2.6L74.9,19c0.5-0.4,1.2-0.1,1.2,0.6v50.3c0,0.7-0.9,1-1.3,0.5l-56-67C17,1.2,14.4,0,11.5,0h-2C4.3,0,0,4.3,0,9.6v70.8C0,85.7,4.3,90,9.6,90c3.3,0,6.4-1.7,8.2-4.6l18.8-27.9c1.3-1.9-1.2-4.2-3-2.6l-18.5,16c-0.5,0.4-1.2,0.1-1.2-0.6V20.1c0-0.7,0.9-1,1.3-0.5l56,67c1.8,2.2,4.5,3.4,7.3,3.4h2c5.3,0,9.6-4.3,9.6-9.6V9.6c0-5.3-4.3-9.6-9.6-9.6C77.1,0,74,1.7,72.2,4.6z"/>
+  </g>
+  <text x="190" y="515" text-anchor="middle" fill="#f1f5f9" font-size="15" font-weight="600">NEAR Protocol</text>
+  <text x="170" y="540" text-anchor="middle" fill="#64748b" font-size="10">AI Dataset Matching</text>
+  <text x="170" y="555" text-anchor="middle" fill="#475569" font-size="9">On-chain Scoring | Testnet</text>
+
+  <!-- Arrow: App <-> NEAR -->
+  <line x1="470" y1="380" x2="270" y2="490" stroke="#f59e0b" stroke-width="1.5" marker-end="url(#arrowAmber)" opacity="0.7"/>
+  <text x="345" y="445" text-anchor="middle" fill="#f59e0b" font-size="9" opacity="0.8" transform="rotate(25, 345, 445)">Query + Results</text>
+
+  <!-- ========================= -->
+  <!-- BOTTOM RIGHT: Flow        -->
+  <!-- ========================= -->
+  <rect x="820" y="480" width="220" height="90" rx="12" fill="#1e293b" stroke="#10b981" stroke-width="1.5"/>
+  <!-- Flow logo (green circle with shapes) -->
+  <g transform="translate(838, 498) scale(0.133)">
+    <circle cx="128" cy="128" r="128" fill="#00EF8B"/>
+    <rect x="148" y="108" width="36" height="36" fill="#FFFFFF"/>
+    <path d="M112,157.7c0,7.4-6.1,13.6-13.6,13.6s-13.6-6.1-13.6-13.6c0-7.4,6.1-13.6,13.6-13.6h13.6V108H98.4C71,108,48.6,130.4,48.6,157.7S71,207.4,98.4,207.4s49.6-22.3,49.6-49.6v-13.6H112V157.7z" fill="#FFFFFF"/>
+    <path d="M161.5,89.9H202V53.8h-40.5c-27.4,0-49.6,22.3-49.6,49.6v4.6h36.1v-4.6C148,96.1,153.5,89.9,161.5,89.9z" fill="#FFFFFF"/>
+    <polygon points="148,108 148,108 112,108 112,144 148,144" fill="#16FF99"/>
+  </g>
+  <text x="950" y="510" text-anchor="middle" fill="#f1f5f9" font-size="15" font-weight="600">Flow EVM</text>
+  <text x="930" y="535" text-anchor="middle" fill="#64748b" font-size="10">Registry + Licensing</text>
+  <text x="930" y="550" text-anchor="middle" fill="#475569" font-size="9">Payments | Chain 545</text>
+
+  <!-- Arrow: App <-> Flow -->
+  <line x1="730" y1="380" x2="830" y2="490" stroke="#10b981" stroke-width="1.5" marker-end="url(#arrowEmerald)" opacity="0.7"/>
+  <text x="805" y="445" text-anchor="middle" fill="#10b981" font-size="9" opacity="0.8" transform="rotate(-25, 805, 445)">Register + Pay</text>
+
+  <!-- ========================= -->
+  <!-- BOTTOM CENTER: Impulse AI -->
+  <!-- ========================= -->
+  <rect x="440" y="480" width="220" height="90" rx="12" fill="#1e293b" stroke="#3b82f6" stroke-width="1.5"/>
+  <!-- Impulse AI logo (brain wave) -->
+  <g transform="translate(458, 498)">
+    <rect width="34" height="34" rx="7" fill="#3b82f6"/>
+    <path d="M6 23 L11 10 L17 19 L23 7 L28 23" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  </g>
+  <text x="570" y="515" text-anchor="middle" fill="#f1f5f9" font-size="15" font-weight="600">Impulse AI</text>
+  <text x="550" y="540" text-anchor="middle" fill="#64748b" font-size="10">Motor Imagery Classification</text>
+  <text x="550" y="555" text-anchor="middle" fill="#475569" font-size="9">ERD Fallback Classifier</text>
+
+  <!-- Arrow: App -> Impulse -->
+  <line x1="580" y1="390" x2="560" y2="480" stroke="#3b82f6" stroke-width="1.5" marker-end="url(#arrowBlue)" opacity="0.7"/>
+  <text x="590" y="440" text-anchor="middle" fill="#3b82f6" font-size="9" opacity="0.8">Classify</text>
+
+  <!-- ========================= -->
+  <!-- DATA FLOW LABELS          -->
+  <!-- ========================= -->
+
+  <!-- User label top-left -->
+  <rect x="60" y="310" width="130" height="60" rx="10" fill="#0f172a" stroke="#334155" stroke-width="1" stroke-dasharray="4,3"/>
+  <text x="125" y="335" text-anchor="middle" fill="#94a3b8" font-size="11" font-weight="600">Contributor</text>
+  <text x="125" y="355" text-anchor="middle" fill="#64748b" font-size="9">Uploads EEG Data</text>
+  <!-- Arrow: User -> App -->
+  <line x1="190" y1="340" x2="458" y2="340" stroke="#334155" stroke-width="1" stroke-dasharray="5,3" marker-end="url(#arrowCyan)" opacity="0.4"/>
+
+  <!-- Researcher label bottom-right -->
+  <rect x="1010" y="310" width="130" height="60" rx="10" fill="#0f172a" stroke="#334155" stroke-width="1" stroke-dasharray="4,3"/>
+  <text x="1075" y="335" text-anchor="middle" fill="#94a3b8" font-size="11" font-weight="600">Researcher</text>
+  <text x="1075" y="355" text-anchor="middle" fill="#64748b" font-size="9">Discovers + Accesses</text>
+  <!-- Arrow: App -> Researcher -->
+  <line x1="742" y1="340" x2="1008" y2="340" stroke="#334155" stroke-width="1" stroke-dasharray="5,3" marker-end="url(#arrowCyan)" opacity="0.4"/>
+
+  <!-- Cross-links between services -->
+  <!-- Lit <-> Flow (access verification) -->
+  <path d="M 660 195 Q 780 300 830 490" fill="none" stroke="#475569" stroke-width="0.8" stroke-dasharray="3,4" opacity="0.4"/>
+  <text x="770" y="350" text-anchor="middle" fill="#475569" font-size="8" opacity="0.6" transform="rotate(-60, 770, 350)">Access Check</text>
+
+  <!-- Storacha <-> Flow (CID mapping) -->
+  <path d="M 930 210 Q 960 350 930 480" fill="none" stroke="#475569" stroke-width="0.8" stroke-dasharray="3,4" opacity="0.4"/>
+  <text x="960" y="350" text-anchor="middle" fill="#475569" font-size="8" opacity="0.6" transform="rotate(-90, 960, 350)">CID Mapping</text>
+
+  <!-- Footer -->
+  <text x="600" y="640" text-anchor="middle" fill="#334155" font-size="11" letter-spacing="1">BUILT FOR PL GENESIS: FRONTIERS OF COLLABORATION</text>
+  <text x="600" y="662" text-anchor="middle" fill="#475569" font-size="10">github.com/imanishbarnwal/NeuroVault</text>
+
+  <!-- Legend -->
+  <g transform="translate(60, 620)">
+    <line x1="0" y1="8" x2="20" y2="8" stroke="#06b6d4" stroke-width="1.5"/>
+    <text x="26" y="12" fill="#64748b" font-size="9">Data Flow</text>
+    <line x1="100" y1="8" x2="120" y2="8" stroke="#475569" stroke-width="0.8" stroke-dasharray="3,4"/>
+    <text x="126" y="12" fill="#64748b" font-size="9">Cross-service</text>
+  </g>
+</svg>

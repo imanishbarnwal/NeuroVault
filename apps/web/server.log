@@ -1,0 +1,52 @@
+
+> @neurovault/web@0.1.0 dev
+> next dev
+
+  ▲ Next.js 14.2.21
+  - Local:        http://localhost:3000
+  - Environments: .env.local
+
+ ✓ Starting...
+ ✓ Ready in 1861ms
+ ○ Compiling / ...
+ ✓ Compiled / in 3.2s (527 modules)
+ ✓ Compiled /api/storage/upload in 375ms (284 modules)
+ POST /api/storage/upload 200 in 32945ms
+ POST /api/storage/upload 200 in 30757ms
+ POST /api/storage/upload 200 in 32102ms
+ ○ Compiling /explore ...
+ ⚠ ../../node_modules/.pnpm/pino@7.11.0/node_modules/pino/lib/tools.js
+Module not found: Can't resolve 'pino-pretty' in '/Users/imanishbarnwal/Downloads/NeuroVault/node_modules/.pnpm/pino@7.11.0/node_modules/pino/lib'
+
+Import trace for requested module:
+../../node_modules/.pnpm/pino@7.11.0/node_modules/pino/lib/tools.js
+../../node_modules/.pnpm/pino@7.11.0/node_modules/pino/pino.js
+../../node_modules/.pnpm/@walletconnect+logger@2.1.3/node_modules/@walletconnect/logger/dist/index.es.js
+../../node_modules/.pnpm/@walletconnect+universal-provider@2.9.2/node_modules/@walletconnect/universal-provider/dist/index.es.js
+../../node_modules/.pnpm/@walletconnect+ethereum-provider@2.9.2_@walletconnect+modal@2.6.1_react@18.3.1_/node_modules/@walletconnect/ethereum-provider/dist/index.es.js
+../../node_modules/.pnpm/@lit-protocol+auth-browser@6.11.5_typescript@5.9.3/node_modules/@lit-protocol/auth-browser/src/lib/chains/eth.js
+../../node_modules/.pnpm/@lit-protocol+auth-browser@6.11.5_typescript@5.9.3/node_modules/@lit-protocol/auth-browser/src/index.js
+../../node_modules/.pnpm/@lit-protocol+lit-node-client@6.11.5_react@18.3.1_typescript@5.9.3/node_modules/@lit-protocol/lit-node-client/src/index.js
+./lib/lit.ts
+./hooks/useLitProtocol.ts
+./app/explore/page.tsx
+ ⚠ ../../node_modules/.pnpm/pino@7.11.0/node_modules/pino/lib/tools.js
+Module not found: Can't resolve 'pino-pretty' in '/Users/imanishbarnwal/Downloads/NeuroVault/node_modules/.pnpm/pino@7.11.0/node_modules/pino/lib'
+
+Import trace for requested module:
+../../node_modules/.pnpm/pino@7.11.0/node_modules/pino/lib/tools.js
+../../node_modules/.pnpm/pino@7.11.0/node_modules/pino/pino.js
+../../node_modules/.pnpm/@walletconnect+logger@2.1.3/node_modules/@walletconnect/logger/dist/index.es.js
+../../node_modules/.pnpm/@walletconnect+universal-provider@2.9.2/node_modules/@walletconnect/universal-provider/dist/index.es.js
+../../node_modules/.pnpm/@walletconnect+ethereum-provider@2.9.2_@walletconnect+modal@2.6.1_react@18.3.1_/node_modules/@walletconnect/ethereum-provider/dist/index.es.js
+../../node_modules/.pnpm/@lit-protocol+auth-browser@6.11.5_typescript@5.9.3/node_modules/@lit-protocol/auth-browser/src/lib/chains/eth.js
+../../node_modules/.pnpm/@lit-protocol+auth-browser@6.11.5_typescript@5.9.3/node_modules/@lit-protocol/auth-browser/src/index.js
+../../node_modules/.pnpm/@lit-protocol+lit-node-client@6.11.5_react@18.3.1_typescript@5.9.3/node_modules/@lit-protocol/lit-node-client/src/index.js
+./lib/lit.ts
+./hooks/useLitProtocol.ts
+./app/explore/page.tsx
+ ✓ Compiled / in 3.9s (246 modules)
+ ✓ Compiled in 6.6s (2172 modules)
+ ✓ Compiled in 1176ms (2172 modules)
+ ✓ Compiled in 750ms (2172 modules)
+ ○ Compiling /_not-found ...

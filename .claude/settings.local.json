@@ -41,7 +41,8 @@
       "Bash(pnpm --filter web build:*)",
       "Bash(pnpm --filter web remove:*)",
       "Bash(xargs kill:*)",
-      "Bash(python3:*)"
+      "Bash(python3:*)",
+      "Bash(pnpm --version:*)"
     ]
   }
 }

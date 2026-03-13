@@ -72,8 +72,25 @@ export function useStoracha() {
         });
 
         if (!response.ok) {
-          const err = await response.json();
-          throw new Error(err.error || `Upload failed: ${response.status}`);
+          let errMessage = `Upload failed: ${response.status}`;
+          try {
+            const contentType = response.headers.get("content-type");
+            if (contentType && contentType.includes("application/json")) {
+              const err = await response.json();
+              errMessage = err.error || errMessage;
+            } else {
+              const text = await response.text();
+              console.error("Non-JSON error response from server:", text);
+              if (response.status === 413) {
+                errMessage = "File is too large for the server.";
+              } else {
+                errMessage = `Server error ${response.status}`;
+              }
+            }
+          } catch (parseErr) {
+            console.error("Failed to parse error response:", parseErr);
+          }
+          throw new Error(errMessage);
         }
 
         // Stage 3: Registering

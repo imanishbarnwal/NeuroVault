@@ -175,36 +175,42 @@ const TECH_STACK = [
     name: "Filecoin",
     desc: "Decentralized Storage",
     href: "https://filecoin.io",
+    logo: "/logos/filecoin.svg",
     color: "bg-cyan-500/10 text-cyan-400 border-cyan-500/20 hover:border-cyan-400/40",
   },
   {
     name: "Storacha",
     desc: "Storage SDK",
     href: "https://storacha.network",
+    logo: "/logos/storacha.svg",
     color: "bg-cyan-500/10 text-cyan-400 border-cyan-500/20 hover:border-cyan-400/40",
   },
   {
     name: "Lit Protocol",
     desc: "Access Control",
     href: "https://litprotocol.com",
+    logo: "/logos/lit.svg",
     color: "bg-violet-500/10 text-violet-400 border-violet-500/20 hover:border-violet-400/40",
   },
   {
     name: "Flow",
     desc: "Smart Contracts",
     href: "https://flow.com",
+    logo: "/logos/flow.svg",
     color: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20 hover:border-emerald-400/40",
   },
   {
     name: "NEAR",
     desc: "Cross-Chain Registry",
     href: "https://near.org",
+    logo: "/logos/near.svg",
     color: "bg-amber-500/10 text-amber-400 border-amber-500/20 hover:border-amber-400/40",
   },
   {
     name: "World ID",
     desc: "Proof of Personhood",
     href: "https://worldcoin.org/world-id",
+    logo: "/logos/worldcoin.svg",
     color: "bg-sky-500/10 text-sky-400 border-sky-500/20 hover:border-sky-400/40",
   },
 ];
@@ -356,7 +362,7 @@ export default function Home() {
             </div>
 
             {/* Tech logos row */}
-            <div className="flex flex-wrap items-center justify-center gap-6 text-slate-500 text-sm">
+            <div className="flex flex-wrap items-center justify-center gap-8 text-slate-500 text-sm">
               <span className="text-slate-600 text-xs uppercase tracking-widest">Powered by</span>
               {TECH_STACK.slice(0, 5).map((t) => (
                 <a
@@ -364,8 +370,9 @@ export default function Home() {
                   href={t.href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-slate-500 hover:text-slate-300 transition-colors font-medium"
+                  className="flex items-center gap-2 text-slate-500 hover:text-slate-300 transition-colors font-medium group"
                 >
+                  <img src={t.logo} alt={t.name} className="w-5 h-5 opacity-60 group-hover:opacity-100 transition-opacity" />
                   {t.name}
                 </a>
               ))}
@@ -494,6 +501,7 @@ export default function Home() {
                 rel="noopener noreferrer"
                 className={`group rounded-xl border p-6 text-center transition-all hover:-translate-y-1 ${tech.color}`}
               >
+                <img src={tech.logo} alt={tech.name} className="w-10 h-10 mx-auto mb-3 opacity-80 group-hover:opacity-100 transition-opacity" />
                 <p className="font-heading font-semibold text-lg mb-1">
                   {tech.name}
                 </p>
