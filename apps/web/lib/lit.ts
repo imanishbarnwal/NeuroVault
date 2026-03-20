@@ -316,13 +316,22 @@ async function demoEncrypt(data: Uint8Array): Promise<{
   combined.set(new Uint8Array(exportedKey), iv.byteLength);
   combined.set(new Uint8Array(encrypted), iv.byteLength + exportedKey.byteLength);
 
-  const ciphertext = btoa(String.fromCharCode(...combined));
+  let binary = "";
+  const chunkSize = 8192;
+  for (let i = 0; i < combined.length; i += chunkSize) {
+    binary += String.fromCharCode(...combined.subarray(i, i + chunkSize));
+  }
+  const ciphertext = btoa(binary);
 
   return { ciphertext, dataToEncryptHash };
 }
 
 async function demoDecrypt(ciphertext: string): Promise<Uint8Array> {
-  const combined = Uint8Array.from(atob(ciphertext), (c) => c.charCodeAt(0));
+  const binaryString = atob(ciphertext);
+  const combined = new Uint8Array(binaryString.length);
+  for (let i = 0; i < binaryString.length; i++) {
+    combined[i] = binaryString.charCodeAt(i);
+  }
 
   const iv = combined.slice(0, 12);
   const keyBytes = combined.slice(12, 44); // 32 bytes for AES-256
@@ -419,7 +428,7 @@ export async function decryptEEGData(
   if (isDemo || !client) {
     throw new Error(
       "Cannot decrypt Lit-encrypted data in demo mode. " +
-        "Connect to the Lit network to decrypt."
+      "Connect to the Lit network to decrypt."
     );
   }
 

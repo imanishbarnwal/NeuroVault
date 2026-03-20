@@ -5,12 +5,28 @@ import Link from "next/link";
 import Navbar from "@/components/layout/Navbar";
 import EmptyState from "@/components/layout/EmptyState";
 import ErrorBoundary from "@/components/layout/ErrorBoundary";
-import { SkeletonStats, SkeletonTable, SkeletonChart, SkeletonCard } from "@/components/layout/Skeleton";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  Database,
+  DollarSign,
+  Key,
+  Star,
+  Upload,
+  Search,
+  ArrowRight,
+  FileText,
+  Activity,
+  Plus,
+  Loader2,
+} from "lucide-react";
 import { useFlow } from "@/hooks/useFlow";
 import { useWorldID } from "@/hooks/useWorldID";
 import type { DatasetEntry, FlowDataset } from "@/types";
 
-/* ── Helpers ──────────────────────────────────────────────────────── */
+/* -- Helpers ------------------------------------------------------------ */
 
 function truncateCid(cid: string, chars = 6): string {
   if (cid.length <= chars * 2 + 3) return cid;
@@ -36,7 +52,7 @@ function timeAgo(date: Date): string {
   return `${Math.floor(s / 86400)}d ago`;
 }
 
-/* ── Activity types ───────────────────────────────────────────────── */
+/* -- Activity types ----------------------------------------------------- */
 
 interface Activity {
   id: string;
@@ -93,7 +109,85 @@ function buildActivityFeed(flowDatasets: FlowDataset[], storachaDatasets: Datase
   return items.slice(0, 8);
 }
 
-/* ── Earnings Chart (recharts) ────────────────────────────────────── */
+/* -- Loading skeletons -------------------------------------------------- */
+
+function StatsLoading() {
+  return (
+    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+      {Array.from({ length: 4 }).map((_, i) => (
+        <Card key={i}>
+          <CardContent className="pt-2">
+            <div className="flex items-start justify-between mb-3">
+              <Skeleton className="h-3 w-20" />
+              <Skeleton className="h-8 w-8 rounded-lg" />
+            </div>
+            <Skeleton className="h-8 w-24 mb-1" />
+            <Skeleton className="h-3 w-28" />
+          </CardContent>
+        </Card>
+      ))}
+    </div>
+  );
+}
+
+function ChartLoading() {
+  return (
+    <Card>
+      <CardContent className="pt-2">
+        <div className="flex items-center justify-between mb-6">
+          <Skeleton className="h-4 w-32" />
+          <Skeleton className="h-5 w-24 rounded" />
+        </div>
+        <Skeleton className="h-[220px] w-full rounded-lg" />
+      </CardContent>
+    </Card>
+  );
+}
+
+function TableLoading({ rows = 3 }: { rows?: number }) {
+  return (
+    <Card>
+      <CardContent className="pt-2">
+        <div className="space-y-4">
+          <div className="flex gap-4">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <Skeleton key={i} className="h-3 w-20" />
+            ))}
+          </div>
+          {Array.from({ length: rows }).map((_, i) => (
+            <div key={i} className="flex items-center gap-4">
+              <Skeleton className="h-8 w-8 rounded-lg" />
+              <Skeleton className="h-4 flex-1" />
+              <Skeleton className="h-4 w-20" />
+              <Skeleton className="h-4 w-16" />
+              <Skeleton className="h-5 w-16 rounded-full" />
+            </div>
+          ))}
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+function ActivityLoading() {
+  return (
+    <Card>
+      <CardContent className="pt-2">
+        <div className="space-y-3">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <div key={i} className="flex items-center gap-3">
+              <Skeleton className="h-2 w-2 rounded-full" />
+              <Skeleton className="h-4 flex-1" />
+              <Skeleton className="h-3 w-12" />
+            </div>
+          ))}
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+/* -- Earnings Chart (recharts) ------------------------------------------ */
 
 function EarningsChart({ datasets }: { datasets: FlowDataset[] }) {
   const [mounted, setMounted] = useState(false);
@@ -111,100 +205,125 @@ function EarningsChart({ datasets }: { datasets: FlowDataset[] }) {
     }));
   }, [datasets]);
 
-  if (!mounted) return <SkeletonChart />;
+  if (!mounted) return <ChartLoading />;
 
   // Dynamic import to avoid SSR issues with recharts
   const Chart = require("recharts");
 
   return (
-    <div className="rounded-xl border border-slate-800 bg-slate-900/50 p-6">
-      <div className="flex items-center justify-between mb-6">
-        <h3 className="text-sm font-semibold text-slate-300">Earnings Over Time</h3>
-        <span className="text-xs text-slate-500 px-2 py-1 rounded bg-slate-800">Last 6 months</span>
-      </div>
-      <Chart.ResponsiveContainer width="100%" height={220}>
-        <Chart.AreaChart data={chartData} margin={{ top: 5, right: 5, bottom: 5, left: 5 }}>
-          <defs>
-            <linearGradient id="earningsGrad" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="rgb(34 211 238)" stopOpacity={0.3} />
-              <stop offset="100%" stopColor="rgb(34 211 238)" stopOpacity={0} />
-            </linearGradient>
-          </defs>
-          <Chart.CartesianGrid strokeDasharray="3 3" stroke="rgb(30 41 59)" vertical={false} />
-          <Chart.XAxis
-            dataKey="month"
-            axisLine={false}
-            tickLine={false}
-            tick={{ fill: "rgb(100 116 139)", fontSize: 12 }}
-          />
-          <Chart.YAxis
-            axisLine={false}
-            tickLine={false}
-            tick={{ fill: "rgb(100 116 139)", fontSize: 12 }}
-            width={40}
-          />
-          <Chart.Tooltip
-            contentStyle={{
-              backgroundColor: "rgb(15 23 42)",
-              border: "1px solid rgb(30 41 59)",
-              borderRadius: "0.5rem",
-              color: "rgb(226 232 240)",
-              fontSize: "12px",
-            }}
-            formatter={(value: number) => [`${value.toFixed(3)} FLOW`, "Earnings"]}
-          />
-          <Chart.Area
-            type="monotone"
-            dataKey="earnings"
-            stroke="rgb(34 211 238)"
-            strokeWidth={2}
-            fill="url(#earningsGrad)"
-          />
-        </Chart.AreaChart>
-      </Chart.ResponsiveContainer>
-    </div>
+    <Card>
+      <CardContent className="pt-2">
+        <div className="flex items-center justify-between mb-6">
+          <h3 className="text-sm font-semibold text-foreground">Earnings Over Time</h3>
+          <span className="text-xs text-muted-foreground px-2 py-1 rounded bg-muted">Last 6 months</span>
+        </div>
+        <Chart.ResponsiveContainer width="100%" height={220}>
+          <Chart.AreaChart data={chartData} margin={{ top: 5, right: 5, bottom: 5, left: 5 }}>
+            <defs>
+              <linearGradient id="earningsGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="oklch(0.585 0.233 264)" stopOpacity={0.3} />
+                <stop offset="100%" stopColor="oklch(0.585 0.233 264)" stopOpacity={0} />
+              </linearGradient>
+            </defs>
+            <Chart.CartesianGrid strokeDasharray="3 3" stroke="oklch(0.28 0.015 260)" vertical={false} />
+            <Chart.XAxis
+              dataKey="month"
+              axisLine={false}
+              tickLine={false}
+              tick={{ fill: "oklch(0.52 0.01 260)", fontSize: 12 }}
+            />
+            <Chart.YAxis
+              axisLine={false}
+              tickLine={false}
+              tick={{ fill: "oklch(0.52 0.01 260)", fontSize: 12 }}
+              width={40}
+            />
+            <Chart.Tooltip
+              contentStyle={{
+                backgroundColor: "oklch(0.20 0.015 260)",
+                border: "1px solid oklch(0.28 0.015 260)",
+                borderRadius: "0.5rem",
+                color: "oklch(0.90 0.01 260)",
+                fontSize: "12px",
+              }}
+              formatter={(value: number) => [`${value.toFixed(3)} FLOW`, "Earnings"]}
+            />
+            <Chart.Area
+              type="monotone"
+              dataKey="earnings"
+              stroke="oklch(0.585 0.233 264)"
+              strokeWidth={2}
+              fill="url(#earningsGrad)"
+            />
+          </Chart.AreaChart>
+        </Chart.ResponsiveContainer>
+      </CardContent>
+    </Card>
   );
 }
 
-/* ── Stat Card ────────────────────────────────────────────────────── */
+/* -- Stat Card ---------------------------------------------------------- */
+
+const statIcons = {
+  datasets: Database,
+  earnings: DollarSign,
+  licenses: Key,
+  impact: Star,
+} as const;
 
 function StatCard({
   label,
   value,
   suffix,
-  color = "text-white",
+  colorClass = "text-foreground",
   subtext,
-  icon,
+  iconKey,
 }: {
   label: string;
   value: string;
   suffix?: string;
-  color?: string;
+  colorClass?: string;
   subtext?: string;
-  icon: string;
+  iconKey: keyof typeof statIcons;
 }) {
+  const Icon = statIcons[iconKey];
   return (
-    <div className="rounded-xl border border-slate-800 bg-slate-900/50 p-5 group hover:border-slate-700 transition-colors">
-      <div className="flex items-start justify-between mb-3">
-        <p className="text-xs text-slate-500 uppercase tracking-wider font-medium">
-          {label}
-        </p>
-        <div className="w-8 h-8 rounded-lg bg-slate-800 flex items-center justify-center group-hover:bg-slate-700 transition-colors">
-          <svg className="w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-            <path strokeLinecap="round" strokeLinejoin="round" d={icon} />
-          </svg>
+    <Card className="group hover:ring-foreground/20 transition-all">
+      <CardContent className="pt-2">
+        <div className="flex items-start justify-between mb-3">
+          <p className="text-xs text-muted-foreground uppercase tracking-wider font-medium">
+            {label}
+          </p>
+          <div className="w-8 h-8 rounded-lg bg-muted flex items-center justify-center group-hover:bg-muted/80 transition-colors">
+            <Icon className="w-4 h-4 text-muted-foreground" />
+          </div>
         </div>
-      </div>
-      <p className={`text-3xl font-bold font-heading ${color}`}>
-        {value}
-        {suffix && <span className="text-sm text-slate-500 ml-1">{suffix}</span>}
-      </p>
-      {subtext && <p className="text-xs text-slate-500 mt-1">{subtext}</p>}
-    </div>
+        <p className={`text-3xl font-bold font-heading ${colorClass}`}>
+          {value}
+          {suffix && <span className="text-sm text-muted-foreground ml-1">{suffix}</span>}
+        </p>
+        {subtext && <p className="text-xs text-muted-foreground mt-1">{subtext}</p>}
+      </CardContent>
+    </Card>
   );
 }
 
-/* ── Page ─────────────────────────────────────────────────────────── */
+/* -- Activity dot color helper ------------------------------------------ */
+
+function activityDotColor(type: Activity["type"]): string {
+  switch (type) {
+    case "register":
+      return "bg-primary"; // primary indigo
+    case "payment":
+      return "bg-nv-success"; // green
+    case "upload":
+      return "bg-foreground";
+    default:
+      return "bg-muted-foreground";
+  }
+}
+
+/* -- Page --------------------------------------------------------------- */
 
 export default function DashboardPage() {
   const [storachaDatasets, setStorachaDatasets] = useState<DatasetEntry[]>([]);
@@ -234,7 +353,7 @@ export default function DashboardPage() {
           setStorachaDatasets(ds ?? []);
         }
       } catch {
-        // Silent fail — empty state shown
+        // Silent fail -- empty state shown
       } finally {
         setLoading(false);
       }
@@ -254,8 +373,10 @@ export default function DashboardPage() {
         ? flowDatasets.filter(
             (d) => d.contributor.toLowerCase() === wallet.address!.toLowerCase()
           )
-        : [],
-    [flowDatasets, wallet.address]
+        : isDemo
+          ? flowDatasets // In demo mode show all datasets as "yours"
+          : [],
+    [flowDatasets, wallet.address, isDemo]
   );
 
   const activityFeed = useMemo(
@@ -263,9 +384,13 @@ export default function DashboardPage() {
     [flowDatasets, storachaDatasets, wallet.address]
   );
 
-  // Compute stats
+  // Compute stats -- in demo mode use flowDatasets as fallback
+  const effectiveDatasetCount = isDemo && stats.datasetCount === 0 ? flowDatasets.length : stats.datasetCount;
+  const effectiveEarnings = isDemo && stats.totalEarnings === BigInt(0)
+    ? flowDatasets.reduce((sum, d) => sum + d.price, BigInt(0))
+    : stats.totalEarnings;
   const activeLicenses = myDatasets.length * 2 + (worldIDVerified ? 1 : 0); // estimated
-  const impactScore = stats.datasetCount * 25 + (worldIDVerified ? 50 : 0) + Math.floor(Number(stats.totalEarnings) / 1e16);
+  const impactScore = effectiveDatasetCount * 25 + (worldIDVerified ? 50 : 0) + Math.floor(Number(effectiveEarnings) / 1e16);
 
   return (
     <ErrorBoundary>
@@ -279,196 +404,136 @@ export default function DashboardPage() {
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-10 page-transition">
           {/* Header */}
-          <div className="mb-8">
-            <h1 className="text-2xl sm:text-3xl font-bold text-white font-heading mb-1">
-              {wallet.isConnected
-                ? `Welcome back, ${truncateAddress(wallet.address!)}`
-                : "Dashboard"}
-            </h1>
-            <p className="text-slate-400 text-sm sm:text-base">
-              {wallet.isConnected
-                ? "Here's what's happening with your datasets."
-                : "Connect your wallet to see your activity."}
-            </p>
-          </div>
-
-          {/* Demo mode banner */}
-          {isDemo && (
-            <div className="mb-6 rounded-lg bg-amber-500/10 border border-amber-500/20 px-4 py-3 flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-amber-400" />
-              <span className="text-xs text-amber-300">Demo Mode — showing simulated data</span>
+          <div className="flex items-center justify-between mb-8">
+            <div>
+              <h1 className="text-2xl sm:text-3xl font-bold text-foreground font-heading mb-1">
+                {wallet.isConnected
+                  ? `Welcome back, ${truncateAddress(wallet.address!)}`
+                  : "Dashboard"}
+              </h1>
+              <p className="text-muted-foreground text-sm sm:text-base">
+                {wallet.isConnected
+                  ? "Here's what's happening with your datasets."
+                  : "Connect your wallet to see your activity."}
+              </p>
             </div>
-          )}
+            <div className="hidden sm:flex items-center gap-2">
+              <Button variant="ghost" size="sm" asChild>
+                <Link href="/upload">
+                  <Upload className="w-3.5 h-3.5" />
+                  Upload New
+                </Link>
+              </Button>
+              <Button variant="ghost" size="sm" asChild>
+                <Link href="/explore">
+                  <Search className="w-3.5 h-3.5" />
+                  Explore
+                </Link>
+              </Button>
+            </div>
+          </div>
 
           {/* Stats Row */}
           {loading ? (
-            <SkeletonStats />
+            <StatsLoading />
           ) : (
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
               <StatCard
                 label="My Datasets"
-                value={String(stats.datasetCount)}
+                value={String(effectiveDatasetCount)}
                 subtext={`${flowDatasets.length} total on platform`}
-                icon="M20.25 6.375c0 2.278-3.694 4.125-8.25 4.125S3.75 8.653 3.75 6.375m16.5 0c0-2.278-3.694-4.125-8.25-4.125S3.75 4.097 3.75 6.375m16.5 0v11.25c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125V6.375"
+                iconKey="datasets"
               />
               <StatCard
                 label="Total Earnings"
-                value={formatFlow(stats.totalEarnings)}
+                value={formatFlow(effectiveEarnings)}
                 suffix="FLOW"
-                color="text-emerald-400"
-                icon="M12 6v12m-3-2.818l.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                colorClass="text-nv-success"
+                iconKey="earnings"
               />
               <StatCard
                 label="Active Licenses"
                 value={String(activeLicenses)}
                 subtext="30-day rolling"
-                color="text-violet-400"
-                icon="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"
+                iconKey="licenses"
               />
               <StatCard
                 label="Impact Score"
                 value={String(impactScore)}
                 subtext={worldIDVerified ? "Verified human" : "Verify to boost"}
-                color="text-amber-400"
-                icon="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z"
+                iconKey="impact"
               />
             </div>
           )}
 
-          {/* Two Column Layout */}
+          {/* Two Column Layout: Earnings Chart (2/3) + Activity Feed (1/3) */}
           <div className="grid lg:grid-cols-3 gap-6 mb-8">
-            {/* Recent Activity — 2/3 width */}
             <div className="lg:col-span-2">
-              <h2 className="text-lg font-semibold text-white font-heading mb-4">Recent Activity</h2>
               {loading ? (
-                <SkeletonTable rows={4} />
-              ) : activityFeed.length === 0 ? (
-                <EmptyState
-                  title="No activity yet"
-                  description="Upload your first dataset or explore existing data to get started."
-                  actionLabel="Upload Dataset"
-                  actionHref="/upload"
-                />
+                <ChartLoading />
               ) : (
-                <div className="space-y-2">
-                  {activityFeed.map((activity) => (
-                    <div
-                      key={activity.id}
-                      className="flex items-center gap-3 rounded-xl border border-slate-800 bg-slate-900/50 p-4 hover:border-slate-700 transition-colors"
-                    >
-                      <div className={`w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 ${activity.color}`}>
-                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                          <path strokeLinecap="round" strokeLinejoin="round" d={activity.icon} />
-                        </svg>
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm text-white truncate">{activity.message}</p>
-                        <p className="text-xs text-slate-500">{activity.time}</p>
-                      </div>
-                      <span className={`text-xs font-medium px-2 py-1 rounded-full ${
-                        activity.type === "payment"
-                          ? "bg-emerald-500/10 text-emerald-400"
-                          : activity.type === "upload"
-                          ? "bg-violet-500/10 text-violet-400"
-                          : activity.type === "register"
-                          ? "bg-cyan-500/10 text-cyan-400"
-                          : "bg-slate-800 text-slate-400"
-                      }`}>
-                        {activity.type}
-                      </span>
-                    </div>
-                  ))}
-                </div>
+                <EarningsChart datasets={flowDatasets} />
               )}
             </div>
 
-            {/* Quick Actions — 1/3 width */}
+            {/* Activity Feed */}
             <div>
-              <h2 className="text-lg font-semibold text-white font-heading mb-4">Quick Actions</h2>
-              {loading ? (
-                <div className="space-y-4">
-                  <SkeletonCard />
-                  <SkeletonCard />
-                  <SkeletonCard />
-                </div>
-              ) : (
-                <div className="space-y-3">
-                  <Link
-                    href="/upload"
-                    className="group flex items-center gap-4 rounded-xl border border-slate-800 bg-slate-900/50 p-5 hover:border-cyan-500/30 transition-all hover:-translate-y-0.5"
-                  >
-                    <div className="w-11 h-11 rounded-lg bg-cyan-500/10 flex items-center justify-center flex-shrink-0 group-hover:bg-cyan-500/20 transition-colors">
-                      <svg className="w-5 h-5 text-cyan-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
-                      </svg>
+              <Card className="h-full">
+                <CardContent className="pt-2">
+                  <h3 className="text-sm font-semibold text-foreground mb-4">Recent Activity</h3>
+                  {loading ? (
+                    <div className="space-y-3">
+                      {Array.from({ length: 5 }).map((_, i) => (
+                        <div key={i} className="flex items-center gap-3">
+                          <Skeleton className="h-2 w-2 rounded-full flex-shrink-0" />
+                          <Skeleton className="h-4 flex-1" />
+                          <Skeleton className="h-3 w-12" />
+                        </div>
+                      ))}
                     </div>
-                    <div>
-                      <h3 className="text-sm font-semibold text-white">Upload Data</h3>
-                      <p className="text-xs text-slate-500">Upload & register EEG recordings</p>
+                  ) : activityFeed.length === 0 ? (
+                    <p className="text-sm text-muted-foreground py-6 text-center">
+                      No activity yet. Upload a dataset to get started.
+                    </p>
+                  ) : (
+                    <div className="space-y-1">
+                      {activityFeed.map((activity) => (
+                        <div
+                          key={activity.id}
+                          className="flex items-start gap-3 rounded-lg px-2 py-2.5 hover:bg-muted/50 transition-colors"
+                        >
+                          <span
+                            className={`mt-1.5 h-2 w-2 rounded-full flex-shrink-0 ${activityDotColor(activity.type)}`}
+                          />
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm text-foreground truncate">{activity.message}</p>
+                            <p className="text-xs text-muted-foreground">{activity.time}</p>
+                          </div>
+                        </div>
+                      ))}
                     </div>
-                  </Link>
-
-                  <Link
-                    href="/explore"
-                    className="group flex items-center gap-4 rounded-xl border border-slate-800 bg-slate-900/50 p-5 hover:border-violet-500/30 transition-all hover:-translate-y-0.5"
-                  >
-                    <div className="w-11 h-11 rounded-lg bg-violet-500/10 flex items-center justify-center flex-shrink-0 group-hover:bg-violet-500/20 transition-colors">
-                      <svg className="w-5 h-5 text-violet-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
-                      </svg>
-                    </div>
-                    <div>
-                      <h3 className="text-sm font-semibold text-white">Explore Datasets</h3>
-                      <p className="text-xs text-slate-500">Browse & purchase access</p>
-                    </div>
-                  </Link>
-
-                  <Link
-                    href="/profile"
-                    className="group flex items-center gap-4 rounded-xl border border-slate-800 bg-slate-900/50 p-5 hover:border-emerald-500/30 transition-all hover:-translate-y-0.5"
-                  >
-                    <div className="w-11 h-11 rounded-lg bg-emerald-500/10 flex items-center justify-center flex-shrink-0 group-hover:bg-emerald-500/20 transition-colors">
-                      <svg className="w-5 h-5 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v12m-3-2.818l.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                      </svg>
-                    </div>
-                    <div>
-                      <h3 className="text-sm font-semibold text-white">View Earnings</h3>
-                      <p className="text-xs text-slate-500">Track revenue & impact</p>
-                    </div>
-                  </Link>
-                </div>
-              )}
+                  )}
+                </CardContent>
+              </Card>
             </div>
           </div>
-
-          {/* Earnings Chart */}
-          {loading ? (
-            <div className="mb-8">
-              <SkeletonChart />
-            </div>
-          ) : (
-            <div className="mb-8">
-              <EarningsChart datasets={flowDatasets} />
-            </div>
-          )}
 
           {/* My Datasets Table */}
           <div>
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-semibold text-white font-heading">My Datasets</h2>
+              <h2 className="text-lg font-semibold text-foreground font-heading">My Datasets</h2>
               {myDatasets.length > 0 && (
-                <Link href="/upload" className="text-xs text-cyan-400 hover:text-cyan-300 transition-colors flex items-center gap-1">
-                  <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-                  </svg>
-                  Add New
-                </Link>
+                <Button variant="ghost" size="sm" asChild>
+                  <Link href="/upload">
+                    <Plus className="w-3.5 h-3.5" />
+                    Add New
+                  </Link>
+                </Button>
               )}
             </div>
 
             {loading ? (
-              <SkeletonTable rows={3} />
+              <TableLoading rows={3} />
             ) : myDatasets.length === 0 ? (
               <EmptyState
                 title="No datasets yet"
@@ -483,91 +548,84 @@ export default function DashboardPage() {
             ) : (
               <>
                 {/* Desktop table */}
-                <div className="hidden sm:block rounded-xl border border-slate-800 bg-slate-900/50 overflow-hidden">
-                  <table className="w-full text-sm">
-                    <thead>
-                      <tr className="border-b border-slate-800">
-                        <th className="text-left text-xs text-slate-500 uppercase tracking-wider font-medium px-5 py-3">Dataset</th>
-                        <th className="text-left text-xs text-slate-500 uppercase tracking-wider font-medium px-5 py-3">Date</th>
-                        <th className="text-left text-xs text-slate-500 uppercase tracking-wider font-medium px-5 py-3">Price</th>
-                        <th className="text-left text-xs text-slate-500 uppercase tracking-wider font-medium px-5 py-3">CID</th>
-                        <th className="text-left text-xs text-slate-500 uppercase tracking-wider font-medium px-5 py-3">Status</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-800/50">
-                      {myDatasets.map((ds) => (
-                        <tr key={ds.id} className="hover:bg-slate-800/30 transition-colors">
-                          <td className="px-5 py-4">
-                            <div className="flex items-center gap-3">
-                              <div className="w-8 h-8 rounded-lg bg-slate-800 flex items-center justify-center flex-shrink-0">
-                                <svg className="w-4 h-4 text-cyan-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                                  <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
-                                </svg>
-                              </div>
-                              <span className="font-medium text-white">Dataset #{ds.id}</span>
-                            </div>
-                          </td>
-                          <td className="px-5 py-4 text-slate-400">
-                            {new Date(ds.registeredAt * 1000).toLocaleDateString()}
-                          </td>
-                          <td className="px-5 py-4">
-                            <span className={Number(ds.price) > 0 ? "text-emerald-400 font-medium" : "text-slate-500"}>
-                              {Number(ds.price) / 1e18 > 0 ? `${Number(ds.price) / 1e18} FLOW` : "Free"}
-                            </span>
-                          </td>
-                          <td className="px-5 py-4 font-mono text-xs text-slate-500">
-                            {truncateCid(ds.dataCID, 8)}
-                          </td>
-                          <td className="px-5 py-4">
-                            <span className={`inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full ${
-                              ds.active
-                                ? "bg-emerald-500/10 text-emerald-400"
-                                : "bg-slate-800 text-slate-500"
-                            }`}>
-                              <span className={`w-1.5 h-1.5 rounded-full ${ds.active ? "bg-emerald-400" : "bg-slate-600"}`} />
-                              {ds.active ? "Active" : "Inactive"}
-                            </span>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                <div className="hidden sm:block">
+                  <Card>
+                    <CardContent className="p-0">
+                      <table className="w-full text-sm">
+                        <thead>
+                          <tr className="border-b border-border">
+                            <th className="text-left text-xs text-muted-foreground uppercase tracking-wider font-medium px-5 py-3">Dataset</th>
+                            <th className="text-left text-xs text-muted-foreground uppercase tracking-wider font-medium px-5 py-3">Date</th>
+                            <th className="text-left text-xs text-muted-foreground uppercase tracking-wider font-medium px-5 py-3">Price</th>
+                            <th className="text-left text-xs text-muted-foreground uppercase tracking-wider font-medium px-5 py-3">CID</th>
+                            <th className="text-left text-xs text-muted-foreground uppercase tracking-wider font-medium px-5 py-3">Status</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-border/50">
+                          {myDatasets.map((ds) => (
+                            <tr key={ds.id} className="hover:bg-muted/50 transition-colors">
+                              <td className="px-5 py-4">
+                                <div className="flex items-center gap-3">
+                                  <div className="w-8 h-8 rounded-lg bg-muted flex items-center justify-center flex-shrink-0">
+                                    <FileText className="w-4 h-4 text-primary" />
+                                  </div>
+                                  <span className="font-medium text-foreground">Dataset #{ds.id}</span>
+                                </div>
+                              </td>
+                              <td className="px-5 py-4 text-muted-foreground">
+                                {new Date(ds.registeredAt * 1000).toLocaleDateString()}
+                              </td>
+                              <td className="px-5 py-4">
+                                <span className={Number(ds.price) > 0 ? "text-nv-success font-medium" : "text-muted-foreground"}>
+                                  {Number(ds.price) / 1e18 > 0 ? `${Number(ds.price) / 1e18} FLOW` : "Free"}
+                                </span>
+                              </td>
+                              <td className="px-5 py-4 font-mono text-xs text-muted-foreground">
+                                {truncateCid(ds.dataCID, 8)}
+                              </td>
+                              <td className="px-5 py-4">
+                                <Badge variant={ds.active ? "default" : "secondary"}>
+                                  {ds.active ? "Active" : "Inactive"}
+                                </Badge>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </CardContent>
+                  </Card>
                 </div>
 
                 {/* Mobile card list */}
                 <div className="sm:hidden space-y-3">
                   {myDatasets.map((ds) => (
-                    <div key={ds.id} className="rounded-xl border border-slate-800 bg-slate-900/50 p-4">
-                      <div className="flex items-center justify-between mb-3">
-                        <div className="flex items-center gap-2">
-                          <div className="w-8 h-8 rounded-lg bg-slate-800 flex items-center justify-center">
-                            <svg className="w-4 h-4 text-cyan-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                              <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
-                            </svg>
+                    <Card key={ds.id}>
+                      <CardContent className="pt-2">
+                        <div className="flex items-center justify-between mb-3">
+                          <div className="flex items-center gap-2">
+                            <div className="w-8 h-8 rounded-lg bg-muted flex items-center justify-center">
+                              <FileText className="w-4 h-4 text-primary" />
+                            </div>
+                            <span className="font-medium text-foreground text-sm">Dataset #{ds.id}</span>
                           </div>
-                          <span className="font-medium text-white text-sm">Dataset #{ds.id}</span>
+                          <Badge variant={ds.active ? "default" : "secondary"}>
+                            {ds.active ? "Active" : "Inactive"}
+                          </Badge>
                         </div>
-                        <span className={`inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full ${
-                          ds.active
-                            ? "bg-emerald-500/10 text-emerald-400"
-                            : "bg-slate-800 text-slate-500"
-                        }`}>
-                          {ds.active ? "Active" : "Inactive"}
-                        </span>
-                      </div>
-                      <div className="grid grid-cols-2 gap-2 text-xs">
-                        <div>
-                          <span className="text-slate-500">Date:</span>{" "}
-                          <span className="text-slate-300">{new Date(ds.registeredAt * 1000).toLocaleDateString()}</span>
+                        <div className="grid grid-cols-2 gap-2 text-xs">
+                          <div>
+                            <span className="text-muted-foreground">Date:</span>{" "}
+                            <span className="text-foreground">{new Date(ds.registeredAt * 1000).toLocaleDateString()}</span>
+                          </div>
+                          <div>
+                            <span className="text-muted-foreground">Price:</span>{" "}
+                            <span className={Number(ds.price) > 0 ? "text-nv-success" : "text-muted-foreground"}>
+                              {Number(ds.price) / 1e18 > 0 ? `${Number(ds.price) / 1e18} FLOW` : "Free"}
+                            </span>
+                          </div>
                         </div>
-                        <div>
-                          <span className="text-slate-500">Price:</span>{" "}
-                          <span className={Number(ds.price) > 0 ? "text-emerald-400" : "text-slate-400"}>
-                            {Number(ds.price) / 1e18 > 0 ? `${Number(ds.price) / 1e18} FLOW` : "Free"}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
+                      </CardContent>
+                    </Card>
                   ))}
                 </div>
               </>

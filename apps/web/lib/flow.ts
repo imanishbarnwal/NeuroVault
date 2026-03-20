@@ -68,9 +68,59 @@ let _demoNextId = 0;
 const _demoDatasets: FlowDataset[] = [];
 const _demoAccess: Map<string, Set<number>> = new Map();
 const _demoEarnings: Map<string, bigint> = new Map();
+let _demoSeeded = false;
 
 function _demoKey(addr: string): string {
   return addr.toLowerCase();
+}
+
+/**
+ * Pre-seed demo datasets that match the explore page's DEMO_DATASETS CIDs.
+ * This ensures getFlowDataset(dataCID) returns a match so the purchase
+ * button appears for paid/restricted datasets.
+ */
+function _seedDemoData(): void {
+  if (_demoSeeded) return;
+  _demoSeeded = true;
+
+  const DEMO_CONTRIBUTOR_A = "0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045";
+  const DEMO_CONTRIBUTOR_B = "0x742d35Cc6634C0532925a3b844Bc9e7595f2bD18";
+  const now = Math.floor(Date.now() / 1000);
+
+  _demoDatasets.push(
+    {
+      id: 0,
+      contributor: DEMO_CONTRIBUTOR_A,
+      dataCID: "bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi",
+      metadataCID: "bafybeif2uxl4g72q7qpvdnaat7gkzme2xhqtpd67y7rghvzb2n4eampsu",
+      price: BigInt(0), // Free — public dataset
+      registeredAt: now - 86400,
+      active: true,
+    },
+    {
+      id: 1,
+      contributor: DEMO_CONTRIBUTOR_A,
+      dataCID: "bafybeihkoviema7g3gxyt6la7vd5ho32lbp7r5y46iqfwqaau7uscwasni",
+      metadataCID: "bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi",
+      price: BigInt(5e16), // 0.05 FLOW — restricted
+      registeredAt: now - 43200,
+      active: true,
+    },
+    {
+      id: 2,
+      contributor: DEMO_CONTRIBUTOR_B,
+      dataCID: "bafybeibml5uieyxa5tufngvg7fgwbkwvlsuntwbxgtskoqynbt7wlchmfm",
+      metadataCID: "bafybeif2uxl4g72q7qpvdnaat7gkzme2xhqtpd67y7rghvzb2n4eampsu",
+      price: BigInt(1e17), // 0.1 FLOW — private
+      registeredAt: now - 7200,
+      active: true,
+    }
+  );
+  _demoNextId = 3;
+
+  // Pre-seed earnings (simulate some previous purchases)
+  _demoEarnings.set(_demoKey(DEMO_CONTRIBUTOR_A), BigInt(15e16)); // 0.15 FLOW
+  _demoEarnings.set(_demoKey(DEMO_CONTRIBUTOR_B), BigInt(1e17));  // 0.1 FLOW
 }
 
 // ── Initialization ────────────────────────────────────────────────
@@ -92,6 +142,7 @@ export async function initFlow(): Promise<{ isDemo: boolean }> {
         "NEXT_PUBLIC_FLOW_REGISTRY_ADDRESS not set — using demo mode"
       );
       _isDemo = true;
+      _seedDemoData();
       return;
     }
 
@@ -111,6 +162,7 @@ export async function initFlow(): Promise<{ isDemo: boolean }> {
         err instanceof Error ? err.message : err
       );
       _isDemo = true;
+      _seedDemoData();
     }
   })();
 

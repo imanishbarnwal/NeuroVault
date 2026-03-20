@@ -42,7 +42,13 @@
       "Bash(pnpm --filter web remove:*)",
       "Bash(xargs kill:*)",
       "Bash(python3:*)",
-      "Bash(pnpm --version:*)"
+      "Bash(pnpm --version:*)",
+      "Bash(grep -E \"\\\\.\\(tsx?|json|css|js\\)$\")",
+      "Bash(npx shadcn@latest init -y -d)",
+      "Bash(npx shadcn@latest add card badge input dialog tabs tooltip separator skeleton dropdown-menu sheet -y)",
+      "Bash(npx next:*)",
+      "Bash(pnpm add:*)",
+      "Bash(pkill -f 'next dev -p 3001')"
     ]
   }
 }

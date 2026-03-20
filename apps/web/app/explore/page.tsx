@@ -21,6 +21,36 @@ import {
   MOCK_DURATION,
 } from "@/components/eeg/mockEEGData";
 
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetDescription,
+} from "@/components/ui/sheet";
+import { Separator } from "@/components/ui/separator";
+import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Search,
+  SlidersHorizontal,
+  Sparkles,
+  FileText,
+  Lock,
+  Unlock,
+  Eye,
+  ShoppingCart,
+  Loader2,
+  X,
+  ExternalLink,
+  Brain,
+  Zap,
+  ChevronRight,
+} from "lucide-react";
+
 // ── Helpers ───────────────────────────────────────────────────────────
 
 function truncateCid(cid: string, chars = 6): string {
@@ -45,14 +75,16 @@ function formatFlowPrice(price: bigint): string {
   return `${eth.toFixed(eth < 0.01 ? 4 : 2)} FLOW`;
 }
 
-const TASK_LABELS: Record<string, { label: string; color: string }> = {
-  "baseline-eyes-open": { label: "Baseline (EO)", color: "bg-cyan-500/20 text-cyan-400" },
-  "baseline-eyes-closed": { label: "Baseline (EC)", color: "bg-cyan-500/20 text-cyan-400" },
-  "motor-execution-fist": { label: "Motor Exec", color: "bg-violet-500/20 text-violet-400" },
-  "motor-imagery-fist": { label: "Motor Imagery", color: "bg-violet-500/20 text-violet-400" },
-  "motor-execution-feet": { label: "Motor Exec (Feet)", color: "bg-emerald-500/20 text-emerald-400" },
-  "motor-imagery-feet": { label: "Motor Imagery (Feet)", color: "bg-emerald-500/20 text-emerald-400" },
+const TASK_LABELS: Record<string, { label: string; category: string }> = {
+  "baseline-eyes-open": { label: "Baseline (EO)", category: "Baseline" },
+  "baseline-eyes-closed": { label: "Baseline (EC)", category: "Baseline" },
+  "motor-execution-fist": { label: "Motor Exec", category: "Motor" },
+  "motor-imagery-fist": { label: "Motor Imagery", category: "Motor" },
+  "motor-execution-feet": { label: "Motor Exec (Feet)", category: "Motor" },
+  "motor-imagery-feet": { label: "Motor Imagery (Feet)", category: "Motor" },
 };
+
+const FILTER_CHIPS = ["All", "Baseline", "Motor", "Cognitive"] as const;
 
 // ── Demo datasets for when no real data is available ─────────────────
 
@@ -114,22 +146,74 @@ interface DecryptedEEG {
   duration: number;
 }
 
-// ── Dataset Detail Panel ─────────────────────────────────────────────
+// ── Purchase Step Indicator ──────────────────────────────────────────
+
+function PurchaseStepItem({
+  label,
+  status,
+}: {
+  label: string;
+  status: "pending" | "active" | "done";
+}) {
+  return (
+    <div className="flex items-center gap-3">
+      {status === "done" ? (
+        <div className="w-5 h-5 rounded-full bg-nv-success/20 flex items-center justify-center">
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" className="text-nv-success">
+            <path d="M20 6L9 17l-5-5" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </div>
+      ) : status === "active" ? (
+        <div className="w-5 h-5 rounded-full bg-indigo-500/20 flex items-center justify-center">
+          <Loader2 className="w-3 h-3 animate-spin text-indigo-400" />
+        </div>
+      ) : (
+        <div className="w-5 h-5 rounded-full bg-slate-800 border border-slate-700" />
+      )}
+      <span className={`text-xs ${
+        status === "done" ? "text-nv-success" : status === "active" ? "text-indigo-300" : "text-slate-600"
+      }`}>
+        {status === "done" ? label.replace("...", "") : label}
+      </span>
+    </div>
+  );
+}
+
+// ── Score Badge ──────────────────────────────────────────────────────
+
+function ScoreBadge({ score }: { score: number }) {
+  const color =
+    score >= 80
+      ? "bg-nv-success/20 text-nv-success border-nv-success/30"
+      : score >= 50
+        ? "bg-amber-500/20 text-amber-400 border-amber-500/30"
+        : "bg-slate-500/20 text-slate-400 border-slate-500/30";
+
+  return (
+    <span className={`text-[11px] font-bold px-2 py-0.5 rounded-full border ${color}`}>
+      {score}%
+    </span>
+  );
+}
+
+// ── Dataset Detail (rendered inside Sheet) ───────────────────────────
 
 function DatasetDetail({
   dataset,
   flowDataset,
   isDemo,
-  onClose,
+  isFlowDemo,
   onPurchaseAccess,
+  onConnectWallet,
   isPurchasing,
   walletConnected,
 }: {
   dataset: DatasetEntry;
   flowDataset?: FlowDataset;
   isDemo: boolean;
-  onClose: () => void;
+  isFlowDemo: boolean;
   onPurchaseAccess: (datasetId: number) => Promise<void>;
+  onConnectWallet: () => void;
   isPurchasing: boolean;
   walletConnected: boolean;
 }) {
@@ -140,19 +224,41 @@ function DatasetDetail({
   const [decryptError, setDecryptError] = useState<string | null>(null);
   const [eegData, setEegData] = useState<DecryptedEEG | null>(null);
   const [purchased, setPurchased] = useState(false);
+  const [purchaseStep, setPurchaseStep] = useState<
+    "idle" | "connecting" | "confirming" | "processing" | "done"
+  >("idle");
 
   const isEncrypted = dataset.accessType !== "public";
-  const isFree = flowDataset ? flowDataset.price === BigInt(0) : !isEncrypted;
+  const isFree = flowDataset ? flowDataset.price === BigInt(0) : false;
+  const needsPurchase = isEncrypted && !isFree && !purchased;
+  const isDemoMode = isDemo || isFlowDemo;
+  const purchaseInProgress = purchaseStep !== "idle" && purchaseStep !== "done";
 
   const handlePurchase = useCallback(async () => {
-    if (!flowDataset) return;
-    try {
-      await onPurchaseAccess(flowDataset.id);
+    if (flowDataset && !isDemoMode) {
+      setPurchaseStep("processing");
+      try {
+        await onPurchaseAccess(flowDataset.id);
+        setPurchaseStep("done");
+        setPurchased(true);
+      } catch {
+        setPurchaseStep("idle");
+      }
+    } else {
+      // Demo mode — simulate multi-step payment flow
+      setPurchaseStep("connecting");
+      await new Promise((r) => setTimeout(r, 1200));
+
+      setPurchaseStep("confirming");
+      await new Promise((r) => setTimeout(r, 1500));
+
+      setPurchaseStep("processing");
+      await new Promise((r) => setTimeout(r, 1800));
+
+      setPurchaseStep("done");
       setPurchased(true);
-    } catch {
-      // Error is handled by parent
     }
-  }, [flowDataset, onPurchaseAccess]);
+  }, [flowDataset, onPurchaseAccess, isDemoMode]);
 
   const handleDecrypt = useCallback(async () => {
     setDecrypting(true);
@@ -210,30 +316,41 @@ function DatasetDetail({
     }
   }, [dataset, isDemo, isEncrypted, retrieve, decrypt]);
 
+  const taskInfo = TASK_LABELS[dataset.task] || { label: dataset.task, category: "Other" };
+
   return (
-    <div className="mt-4 rounded-xl border border-slate-700 bg-slate-900 p-5 animate-fadeIn">
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="text-sm font-semibold text-slate-100">
-          {dataset.filename} — Detail View
-        </h3>
-        <button
-          onClick={onClose}
-          className="text-slate-500 hover:text-slate-300 transition-colors"
-        >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <line x1="18" y1="6" x2="6" y2="18" />
-            <line x1="6" y1="6" x2="18" y2="18" />
-          </svg>
-        </button>
+    <div className="flex flex-col gap-5 overflow-y-auto px-4 pb-6">
+      {/* Dataset summary header */}
+      <div className="flex items-center gap-3">
+        <div className="w-10 h-10 rounded-lg bg-indigo-500/10 flex items-center justify-center flex-shrink-0">
+          <Brain className="w-5 h-5 text-indigo-400" />
+        </div>
+        <div className="min-w-0">
+          <h4 className="text-sm font-semibold text-slate-100 truncate">{dataset.filename}</h4>
+          <div className="flex items-center gap-2 mt-0.5">
+            <Badge variant="secondary">{taskInfo.label}</Badge>
+            {isEncrypted ? (
+              <Lock className="w-3 h-3 text-amber-400" />
+            ) : (
+              <Unlock className="w-3 h-3 text-nv-success" />
+            )}
+          </div>
+        </div>
       </div>
+
+      <Separator />
 
       {/* On-chain info */}
       {flowDataset && (
-        <div className="mb-4 p-3 rounded-lg bg-slate-950 border border-slate-800">
+        <div className="rounded-lg bg-slate-900 border border-slate-800 p-4">
+          <h5 className="text-xs font-medium text-slate-400 mb-3 flex items-center gap-1.5">
+            <Zap className="w-3.5 h-3.5 text-indigo-400" />
+            On-Chain Info
+          </h5>
           <div className="grid grid-cols-3 gap-4 text-xs">
             <div>
               <span className="text-slate-500">Price</span>
-              <p className="text-emerald-400 font-medium">{formatFlowPrice(flowDataset.price)}</p>
+              <p className="text-nv-success font-medium">{formatFlowPrice(flowDataset.price)}</p>
             </div>
             <div>
               <span className="text-slate-500">Contributor</span>
@@ -247,8 +364,38 @@ function DatasetDetail({
         </div>
       )}
 
+      {/* Dataset metadata */}
+      <div className="rounded-lg bg-slate-900 border border-slate-800 p-4">
+        <h5 className="text-xs font-medium text-slate-400 mb-3 flex items-center gap-1.5">
+          <FileText className="w-3.5 h-3.5 text-indigo-400" />
+          Dataset Info
+        </h5>
+        <div className="grid grid-cols-2 gap-3 text-xs">
+          {dataset.channels > 0 && (
+            <div>
+              <span className="text-slate-500">Channels</span>
+              <p className="text-slate-300 font-medium">{dataset.channels}</p>
+            </div>
+          )}
+          {dataset.duration > 0 && (
+            <div>
+              <span className="text-slate-500">Duration</span>
+              <p className="text-slate-300 font-medium">{formatDuration(dataset.duration)}</p>
+            </div>
+          )}
+          <div>
+            <span className="text-slate-500">Data CID</span>
+            <p className="text-slate-400 font-mono text-[11px]">{truncateCid(dataset.dataCID, 8)}</p>
+          </div>
+          <div>
+            <span className="text-slate-500">Uploaded</span>
+            <p className="text-slate-300 font-medium">{new Date(dataset.timestamp).toLocaleDateString()}</p>
+          </div>
+        </div>
+      </div>
+
       {/* Encryption status */}
-      <div className="mb-4 p-3 rounded-lg bg-slate-950 border border-slate-800">
+      <div className="rounded-lg bg-slate-900 border border-slate-800 p-4">
         <EncryptionStatus
           accessType={dataset.accessType}
           accessConditions={dataset.accessConditions}
@@ -257,13 +404,16 @@ function DatasetDetail({
         />
       </div>
 
+      <Separator />
+
       {/* Waveform viewer or purchase/decrypt button */}
       {eegData ? (
         <>
           <div className="rounded-lg border border-slate-800 p-4">
-            <h4 className="text-xs font-semibold text-slate-400 mb-3">
+            <h5 className="text-xs font-medium text-slate-400 mb-3 flex items-center gap-1.5">
+              <Brain className="w-3.5 h-3.5 text-indigo-400" />
               EEG Waveform
-            </h4>
+            </h5>
             <EEGWaveformViewer
               signals={eegData.signals}
               channelNames={eegData.channelNames}
@@ -282,7 +432,7 @@ function DatasetDetail({
           />
         </>
       ) : (
-        <div className="flex flex-col items-center gap-3 py-6">
+        <div className="flex flex-col items-center gap-3 py-4">
           {decryptError && (
             <div className="w-full rounded-lg bg-red-500/10 border border-red-500/20 px-4 py-3">
               <p className="text-sm text-red-400 font-medium mb-1">Access Denied</p>
@@ -290,114 +440,153 @@ function DatasetDetail({
             </div>
           )}
 
-          {/* Purchase access button (for paid datasets) */}
-          {flowDataset && !isFree && !purchased && isEncrypted && (
-            <div className="w-full rounded-lg bg-violet-500/5 border border-violet-500/20 px-4 py-4 text-center">
-              <p className="text-sm text-slate-300 mb-3">
-                Purchase a 30-day access license to decrypt this dataset.
-              </p>
-              {!worldIDVerified && (
+          {/* Purchase access button (for encrypted/paid datasets) */}
+          {needsPurchase && (
+            <div className="w-full rounded-lg bg-indigo-500/5 border border-indigo-500/20 px-4 py-4">
+              {/* Price & info header */}
+              <div className="text-center mb-4">
+                <p className="text-sm font-medium text-slate-200 mb-1">
+                  Access License Required
+                </p>
+                <p className="text-xs text-slate-400">
+                  {flowDataset
+                    ? "Purchase a 30-day access license to decrypt this dataset."
+                    : "This dataset requires access authorization to decrypt."}
+                </p>
+              </div>
+
+              {/* Price card */}
+              <div className="rounded-lg bg-slate-950 border border-slate-800 p-4 mb-4">
+                <div className="grid grid-cols-3 gap-4 text-xs">
+                  <div>
+                    <span className="text-slate-500">Price</span>
+                    <p className="text-nv-success font-semibold text-sm mt-0.5">
+                      {flowDataset ? formatFlowPrice(flowDataset.price) : "0.05 FLOW"}
+                    </p>
+                  </div>
+                  <div>
+                    <span className="text-slate-500">Duration</span>
+                    <p className="text-slate-300 font-medium mt-0.5">30 days</p>
+                  </div>
+                  <div>
+                    <span className="text-slate-500">Network</span>
+                    <p className="text-slate-300 font-medium mt-0.5">Flow EVM</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* World ID gate (real mode only) */}
+              {!isDemoMode && !worldIDVerified && (
                 <div className="mb-3 flex items-center justify-center gap-2">
                   <span className="text-xs text-amber-400">Verify your humanity first:</span>
                   <WorldIDButton compact />
                 </div>
               )}
-              <button
-                onClick={handlePurchase}
-                disabled={isPurchasing || !walletConnected || !worldIDVerified}
-                className="px-6 py-2 text-sm font-medium rounded-lg bg-violet-500 text-white
-                           hover:bg-violet-400 disabled:opacity-50 disabled:cursor-not-allowed transition-colors
-                           flex items-center gap-2 mx-auto"
-              >
-                {isPurchasing ? (
-                  <>
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" className="animate-spin">
-                      <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" strokeOpacity="0.2" />
-                      <path d="M12 2a10 10 0 019.95 9" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
-                    </svg>
-                    Processing...
-                  </>
-                ) : (
-                  <>
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v12m-3-2.818l.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    Purchase Access — {formatFlowPrice(flowDataset.price)}
-                  </>
-                )}
-              </button>
-              {!walletConnected && (
-                <p className="text-xs text-slate-500 mt-2">Connect your wallet first</p>
+
+              {/* Wallet connection required */}
+              {!walletConnected && !purchaseInProgress && (
+                <div className="mb-4 rounded-lg bg-slate-950 border border-amber-500/20 p-4 flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-slate-300">Wallet Required</p>
+                    <p className="text-xs text-slate-500 mt-0.5">Connect your wallet to purchase access</p>
+                  </div>
+                  <Button variant="outline" size="sm" onClick={onConnectWallet}>
+                    Connect Wallet
+                  </Button>
+                </div>
               )}
+
+              {/* Purchase progress steps */}
+              {purchaseInProgress && (
+                <div className="mb-4 rounded-lg bg-slate-950 border border-indigo-500/20 p-4">
+                  <div className="flex flex-col gap-3">
+                    <PurchaseStepItem
+                      label="Connecting wallet..."
+                      status={purchaseStep === "connecting" ? "active" : purchaseStep === "confirming" || purchaseStep === "processing" ? "done" : "pending"}
+                    />
+                    <PurchaseStepItem
+                      label="Confirming transaction..."
+                      status={purchaseStep === "confirming" ? "active" : purchaseStep === "processing" ? "done" : "pending"}
+                    />
+                    <PurchaseStepItem
+                      label="Processing payment on Flow..."
+                      status={purchaseStep === "processing" ? "active" : "pending"}
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* Purchase button */}
+              <div className="text-center">
+                <Button
+                  onClick={handlePurchase}
+                  disabled={purchaseInProgress || !walletConnected || (!isDemoMode && !worldIDVerified)}
+                  className="mx-auto"
+                >
+                  {purchaseInProgress ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      {purchaseStep === "connecting" && "Connecting wallet..."}
+                      {purchaseStep === "confirming" && "Confirming transaction..."}
+                      {purchaseStep === "processing" && "Processing payment..."}
+                    </>
+                  ) : (
+                    <>
+                      <ShoppingCart className="w-4 h-4" />
+                      Purchase Access — {flowDataset ? formatFlowPrice(flowDataset.price) : "0.05 FLOW"}
+                    </>
+                  )}
+                </Button>
+              </div>
             </div>
           )}
 
-          {/* Decrypt / View button */}
-          {(isFree || purchased || !isEncrypted || !flowDataset) && (
+          {/* Decrypt / View button — only when access is granted */}
+          {!needsPurchase && (
             <>
-              <p className="text-sm text-slate-400">
+              <p className="text-sm text-slate-400 text-center">
                 {isEncrypted
-                  ? purchased ? "Access purchased! Decrypt to view waveform." : "Request access to view the waveform."
+                  ? purchased ? "Access purchased! Decrypt to view waveform." : "Click below to view the waveform data."
                   : "Click below to load and view the waveform data."}
               </p>
-              <button
+              <Button
                 onClick={handleDecrypt}
                 disabled={decrypting}
-                className="px-5 py-2 text-sm font-medium rounded-lg bg-cyan-500 text-slate-950
-                           hover:bg-cyan-400 disabled:opacity-50 disabled:cursor-not-allowed transition-colors
-                           flex items-center gap-2"
               >
                 {decrypting ? (
                   <>
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" className="animate-spin">
-                      <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" strokeOpacity="0.2" />
-                      <path d="M12 2a10 10 0 019.95 9" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
-                    </svg>
+                    <Loader2 className="w-4 h-4 animate-spin" />
                     {isEncrypted ? "Decrypting..." : "Loading..."}
                   </>
                 ) : (
                   <>
-                    {isEncrypted ? (
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-                        <path d="M7 11V7a5 5 0 0110 0v4" />
-                      </svg>
-                    ) : (
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-                        <circle cx="12" cy="12" r="3" />
-                      </svg>
-                    )}
+                    {isEncrypted ? <Lock className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                     {decryptError ? "Retry" : isEncrypted ? "Decrypt & View" : "Load & View"}
                   </>
                 )}
-              </button>
+              </Button>
             </>
           )}
         </div>
       )}
+
+      {/* Metadata link */}
+      <div className="pt-2">
+        <a
+          href={`https://w3s.link/ipfs/${dataset.metadataCID}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-1.5 text-xs text-indigo-400 hover:text-indigo-300 transition-colors"
+        >
+          <ExternalLink className="w-3.5 h-3.5" />
+          View Metadata on IPFS
+        </a>
+      </div>
     </div>
   );
 }
 
-// ── Score Badge ──────────────────────────────────────────────────────
-
-function ScoreBadge({ score }: { score: number }) {
-  const color =
-    score >= 80
-      ? "bg-emerald-500/20 text-emerald-400 border-emerald-500/30"
-      : score >= 50
-        ? "bg-amber-500/20 text-amber-400 border-amber-500/30"
-        : "bg-slate-500/20 text-slate-400 border-slate-500/30";
-
-  return (
-    <span className={`text-[11px] font-bold px-2 py-0.5 rounded-full border ${color}`}>
-      {score}%
-    </span>
-  );
-}
-
-// ── Smart Search Panel ──────────────────────────────────────────────
+// ── Smart Search (integrated into search bar area) ───────────────────
 
 function SmartSearchPanel({
   onResultsReady,
@@ -447,136 +636,107 @@ function SmartSearchPanel({
   }, [onResultsReady]);
 
   return (
-    <div className="rounded-xl border border-violet-500/20 bg-violet-500/5 p-5 mb-6">
-      <div className="flex items-center justify-between mb-3">
-        <div className="flex items-center gap-2">
-          <svg className="w-5 h-5 text-violet-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.455 2.456L21.75 6l-1.036.259a3.375 3.375 0 00-2.455 2.456zM16.894 20.567L16.5 21.75l-.394-1.183a2.25 2.25 0 00-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 001.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 001.423 1.423l1.183.394-1.183.394a2.25 2.25 0 00-1.423 1.423z" />
-          </svg>
-          <h3 className="text-sm font-semibold text-violet-300">Smart Search</h3>
-          <span className="text-[10px] text-violet-500 font-medium px-1.5 py-0.5 rounded bg-violet-500/10">
-            NEAR AI
-          </span>
-        </div>
-        <div className="flex items-center gap-3">
-          {queryCount > 0 && (
-            <span className="text-[10px] text-slate-500">{queryCount} queries processed</span>
-          )}
-          {isNearDemo && (
-            <span className="text-[10px] text-amber-400">demo</span>
-          )}
-        </div>
-      </div>
-
-      {/* Natural language input */}
-      <div className="flex gap-2 mb-2">
+    <div className="space-y-3">
+      {/* AI search input row */}
+      <div className="flex gap-2">
         <div className="relative flex-1">
-          <input
+          <Sparkles className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-indigo-400" />
+          <Input
             type="text"
             value={nlQuery}
             onChange={(e) => setNlQuery(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && handleSearch()}
             placeholder="Describe the EEG data you need... (e.g., 'motor imagery with 64 channels')"
-            className="w-full px-4 py-2.5 rounded-lg bg-slate-900 border border-slate-700 text-sm text-slate-200
-                       placeholder-slate-500 focus:outline-none focus:border-violet-500/50 focus:ring-1 focus:ring-violet-500/20
-                       transition-colors"
+            className="pl-10 h-9 bg-slate-900 border-indigo-500/30 focus-visible:border-indigo-500/50 focus-visible:ring-indigo-500/20"
           />
         </div>
-        <button
+        <Button
           onClick={handleSearch}
           disabled={isSearching || (!nlQuery.trim() && !taskType)}
-          className="px-5 py-2.5 rounded-lg bg-violet-500 text-white text-sm font-medium
-                     hover:bg-violet-400 disabled:opacity-50 disabled:cursor-not-allowed transition-colors
-                     flex items-center gap-2"
+          size="default"
         >
           {isSearching ? (
             <>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" className="animate-spin">
-                <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" strokeOpacity="0.2" />
-                <path d="M12 2a10 10 0 019.95 9" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
-              </svg>
+              <Loader2 className="w-4 h-4 animate-spin" />
               Matching...
             </>
           ) : (
             <>
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
-              </svg>
+              <Search className="w-4 h-4" />
               Match
             </>
           )}
-        </button>
+        </Button>
         {lastResults.length > 0 && (
-          <button
-            onClick={handleClear}
-            className="px-3 py-2.5 rounded-lg border border-slate-700 text-slate-400 text-sm
-                       hover:border-slate-600 hover:text-slate-300 transition-colors"
-          >
-            Clear
-          </button>
+          <Button variant="outline" size="default" onClick={handleClear}>
+            <X className="w-4 h-4" />
+          </Button>
         )}
       </div>
 
       {/* Filters toggle */}
-      <button
-        onClick={() => setShowFilters(!showFilters)}
-        className="text-xs text-slate-500 hover:text-violet-400 transition-colors flex items-center gap-1 mb-2"
-      >
-        <svg className={`w-3 h-3 transition-transform ${showFilters ? "rotate-90" : ""}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-          <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
-        </svg>
-        Structured Filters
-      </button>
+      <div className="flex items-center gap-3">
+        <button
+          onClick={() => setShowFilters(!showFilters)}
+          className="text-xs text-slate-500 hover:text-indigo-400 transition-colors flex items-center gap-1"
+        >
+          <SlidersHorizontal className="w-3 h-3" />
+          Structured Filters
+          <ChevronRight className={`w-3 h-3 transition-transform ${showFilters ? "rotate-90" : ""}`} />
+        </button>
+        {queryCount > 0 && (
+          <span className="text-[10px] text-slate-500">{queryCount} queries processed</span>
+        )}
+        {isNearDemo && (
+          <Badge variant="secondary" className="text-[10px] h-4">demo</Badge>
+        )}
+      </div>
 
       {/* Structured filters */}
       {showFilters && (
-        <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 p-3 rounded-lg bg-slate-950 border border-slate-800">
+        <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 p-3 rounded-lg bg-slate-900 border border-slate-800">
           <div>
             <label className="text-[10px] text-slate-500 uppercase tracking-wider block mb-1">Min Channels</label>
-            <input
+            <Input
               type="number"
               value={minChannels}
               onChange={(e) => setMinChannels(e.target.value)}
               placeholder="e.g., 32"
-              min="0"
-              className="w-full px-2 py-1.5 rounded bg-slate-900 border border-slate-700 text-xs text-slate-300
-                         focus:outline-none focus:border-violet-500/50 transition-colors"
+              min={0}
+              className="h-7 text-xs bg-slate-950"
             />
           </div>
           <div>
             <label className="text-[10px] text-slate-500 uppercase tracking-wider block mb-1">Max Channels</label>
-            <input
+            <Input
               type="number"
               value={maxChannels}
               onChange={(e) => setMaxChannels(e.target.value)}
               placeholder="e.g., 128"
-              min="0"
-              className="w-full px-2 py-1.5 rounded bg-slate-900 border border-slate-700 text-xs text-slate-300
-                         focus:outline-none focus:border-violet-500/50 transition-colors"
+              min={0}
+              className="h-7 text-xs bg-slate-950"
             />
           </div>
           <div>
             <label className="text-[10px] text-slate-500 uppercase tracking-wider block mb-1">Min Duration (s)</label>
-            <input
+            <Input
               type="number"
               value={minDuration}
               onChange={(e) => setMinDuration(e.target.value)}
               placeholder="e.g., 60"
-              min="0"
-              className="w-full px-2 py-1.5 rounded bg-slate-900 border border-slate-700 text-xs text-slate-300
-                         focus:outline-none focus:border-violet-500/50 transition-colors"
+              min={0}
+              className="h-7 text-xs bg-slate-950"
             />
           </div>
           <div>
             <label className="text-[10px] text-slate-500 uppercase tracking-wider block mb-1">Max Duration (s)</label>
-            <input
+            <Input
               type="number"
               value={maxDuration}
               onChange={(e) => setMaxDuration(e.target.value)}
               placeholder="e.g., 300"
-              min="0"
-              className="w-full px-2 py-1.5 rounded bg-slate-900 border border-slate-700 text-xs text-slate-300
-                         focus:outline-none focus:border-violet-500/50 transition-colors"
+              min={0}
+              className="h-7 text-xs bg-slate-950"
             />
           </div>
           <div>
@@ -584,8 +744,8 @@ function SmartSearchPanel({
             <select
               value={taskType}
               onChange={(e) => setTaskType(e.target.value)}
-              className="w-full px-2 py-1.5 rounded bg-slate-900 border border-slate-700 text-xs text-slate-300
-                         focus:outline-none focus:border-violet-500/50 transition-colors"
+              className="w-full h-7 px-2 rounded-lg bg-slate-950 border border-input text-xs text-slate-300
+                         focus:outline-none focus:border-ring transition-colors"
             >
               <option value="">Any</option>
               <option value="baseline-eyes-open">Baseline (EO)</option>
@@ -601,19 +761,19 @@ function SmartSearchPanel({
 
       {/* Error */}
       {error && (
-        <div className="mt-2 rounded-lg bg-red-500/10 border border-red-500/20 px-3 py-2">
+        <div className="rounded-lg bg-red-500/10 border border-red-500/20 px-3 py-2">
           <p className="text-xs text-red-400">{error}</p>
         </div>
       )}
 
       {/* Results summary */}
       {lastResults.length > 0 && (
-        <div className="mt-3 flex items-center gap-2">
+        <div className="flex items-center gap-2">
           <span className="text-xs text-slate-400">
             {lastResults.length} datasets ranked
           </span>
-          <span className="text-[10px] text-slate-600">|</span>
-          <span className="text-xs text-emerald-400">
+          <Separator orientation="vertical" className="h-3" />
+          <span className="text-xs text-nv-success">
             Top match: {lastResults[0].overallScore}% — {lastResults[0].explanation}
           </span>
         </div>
@@ -622,17 +782,19 @@ function SmartSearchPanel({
   );
 }
 
-// ── Component ─────────────────────────────────────────────────────────
+// ── Main Page Component ──────────────────────────────────────────────
 
 export default function ExplorePage() {
   const [datasets, setDatasets] = useState<DatasetEntry[]>([]);
   const [flowDatasets, setFlowDatasets] = useState<FlowDataset[]>([]);
   const [loading, setLoading] = useState(true);
   const [isDemo, setIsDemo] = useState(false);
-  const [search, setSearch] = useState("");
-  const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedDataset, setSelectedDataset] = useState<DatasetEntry | null>(null);
   const [isPurchasing, setIsPurchasing] = useState(false);
   const [matchResults, setMatchResults] = useState<NEARMatchResult[]>([]);
+  const [activeFilter, setActiveFilter] = useState<string>("All");
+  const [aiSearchActive, setAiSearchActive] = useState(false);
 
   const { isReady: nearReady, isDemo: nearIsDemo } = useNEAR();
 
@@ -718,11 +880,18 @@ export default function ExplorePage() {
 
   // Filter + sort: if smart search results exist, sort by score
   const filtered = allDatasets
-    .filter(
-      (d) =>
-        d.filename.toLowerCase().includes(search.toLowerCase()) ||
-        d.task.toLowerCase().includes(search.toLowerCase())
-    )
+    .filter((d) => {
+      // Text search filter
+      const matchesSearch =
+        d.filename.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        d.task.toLowerCase().includes(searchQuery.toLowerCase());
+
+      // Category chip filter
+      if (activeFilter === "All") return matchesSearch;
+      const taskInfo = TASK_LABELS[d.task];
+      const category = taskInfo?.category || "Other";
+      return matchesSearch && category === activeFilter;
+    })
     .sort((a, b) => {
       if (matchResults.length === 0) return 0;
       const scoreA = getMatchScore(a.dataCID)?.overallScore ?? -1;
@@ -742,6 +911,8 @@ export default function ExplorePage() {
     }
   }, [purchaseAccess]);
 
+  const sheetOpen = selectedDataset !== null;
+
   return (
     <main className="min-h-screen">
       <Navbar
@@ -752,71 +923,95 @@ export default function ExplorePage() {
       />
 
       <div className="max-w-7xl mx-auto px-6 py-10">
-        {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8">
-          <div>
-            <h1 className="text-3xl font-bold text-white">Explore Datasets</h1>
-            <p className="text-slate-400 mt-1">
-              Browse EEG datasets on Filecoin. Purchase access and view waveforms.
-            </p>
+        {/* Header + Search */}
+        <div className="mb-8">
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-6">
+            <div>
+              <h1 className="text-3xl font-bold text-white">Explore Datasets</h1>
+              <p className="text-slate-400 mt-1">
+                Browse EEG datasets on Filecoin. Purchase access and view waveforms.
+              </p>
+            </div>
+            {/* Search bar with AI toggle */}
+            <div className="flex items-center gap-2 w-full sm:w-auto">
+              <div className="relative flex-1 sm:w-72">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+                <Input
+                  type="text"
+                  placeholder={aiSearchActive ? "Describe EEG data you need..." : "Search datasets..."}
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-10 h-9 bg-slate-900"
+                />
+              </div>
+              {nearReady && (
+                <Button
+                  variant={aiSearchActive ? "default" : "outline"}
+                  size="icon"
+                  onClick={() => setAiSearchActive(!aiSearchActive)}
+                  title="Toggle AI-powered search"
+                >
+                  <Sparkles className="w-4 h-4" />
+                </Button>
+              )}
+            </div>
           </div>
-          {/* Search */}
-          <div className="relative w-full sm:w-72">
-            <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
-            </svg>
-            <input
-              type="text"
-              placeholder="Search datasets..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 rounded-lg bg-slate-900 border border-slate-800 text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:border-cyan-500/50 focus:ring-1 focus:ring-cyan-500/20 transition-colors"
+
+          {/* AI Smart Search (expanded when active) */}
+          {nearReady && aiSearchActive && (
+            <SmartSearchPanel
+              onResultsReady={handleSmartSearchResults}
+              isNearDemo={nearIsDemo}
             />
+          )}
+
+          {/* Filter chips */}
+          <div className="flex items-center gap-2 mt-4 overflow-x-auto pb-1">
+            {FILTER_CHIPS.map((chip) => (
+              <Button
+                key={chip}
+                variant={activeFilter === chip ? "default" : "outline"}
+                size="sm"
+                onClick={() => setActiveFilter(chip)}
+              >
+                {chip}
+              </Button>
+            ))}
           </div>
         </div>
 
-        {/* Smart Search Panel */}
-        {nearReady && (
-          <SmartSearchPanel
-            onResultsReady={handleSmartSearchResults}
-            isNearDemo={nearIsDemo}
-          />
-        )}
-
-        {isDemo && flowIsDemo && (
-          <div className="mb-6 rounded-lg bg-amber-500/10 border border-amber-500/20 px-4 py-3 flex items-start gap-3">
-            <svg className="w-5 h-5 text-amber-400 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
-            </svg>
-            <div>
-              <p className="text-sm text-amber-200 font-medium">Demo Mode</p>
-              <p className="text-xs text-amber-300/70 mt-0.5">
-                Showing sample datasets. Connect your wallet and configure credentials to see real data.
-              </p>
-            </div>
-          </div>
-        )}
-
-        {/* Loading */}
+        {/* Loading state */}
         {loading && (
-          <div className="flex items-center justify-center py-20">
-            <div className="w-8 h-8 border-2 border-cyan-400 border-t-transparent rounded-full animate-spin" />
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {[1, 2, 3].map((i) => (
+              <Card key={i} className="bg-slate-900/50">
+                <CardContent className="space-y-3">
+                  <Skeleton className="h-5 w-3/4" />
+                  <Skeleton className="h-4 w-1/2" />
+                  <div className="flex gap-2">
+                    <Skeleton className="h-5 w-16 rounded-full" />
+                    <Skeleton className="h-5 w-20 rounded-full" />
+                  </div>
+                  <Skeleton className="h-8 w-full" />
+                </CardContent>
+              </Card>
+            ))}
           </div>
         )}
 
         {/* Empty state */}
         {!loading && filtered.length === 0 && (
           <div className="text-center py-20">
-            <svg className="w-16 h-16 text-slate-700 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M20.25 6.375c0 2.278-3.694 4.125-8.25 4.125S3.75 8.653 3.75 6.375m16.5 0c0-2.278-3.694-4.125-8.25-4.125S3.75 4.097 3.75 6.375m16.5 0v11.25c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125V6.375" />
-            </svg>
+            <Brain className="w-16 h-16 text-slate-700 mx-auto mb-4" />
             <h3 className="text-lg font-medium text-slate-400">No datasets found</h3>
             <p className="text-sm text-slate-500 mt-1">
-              {search ? "Try a different search term." : "Upload your first dataset to get started."}
+              {searchQuery ? "Try a different search term." : "Upload your first dataset to get started."}
             </p>
-            {!search && (
-              <Link href="/upload" className="inline-flex items-center gap-2 mt-4 px-4 py-2 rounded-lg bg-cyan-500 hover:bg-cyan-400 text-slate-950 text-sm font-medium transition-colors">
-                Upload Dataset
+            {!searchQuery && (
+              <Link href="/upload">
+                <Button className="mt-4">
+                  Upload Dataset
+                </Button>
               </Link>
             )}
           </div>
@@ -824,122 +1019,95 @@ export default function ExplorePage() {
 
         {/* Dataset grid */}
         {!loading && filtered.length > 0 && (
-          <div className="grid gap-4">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {filtered.map((dataset) => {
               const taskInfo = TASK_LABELS[dataset.task] || {
                 label: dataset.task,
-                color: "bg-slate-500/20 text-slate-400",
+                category: "Other",
               };
               const isEncrypted = dataset.accessType !== "public";
-              const isExpanded = expandedId === dataset.id;
               const flowDs = getFlowDataset(dataset.dataCID);
               const matchScore = getMatchScore(dataset.dataCID);
 
               return (
-                <div key={dataset.id}>
-                  <div
-                    className={`group rounded-xl border bg-slate-900/50 p-5 transition-colors ${
-                      isExpanded
-                        ? "border-cyan-500/40"
-                        : matchScore && matchScore.overallScore >= 80
-                          ? "border-violet-500/30 hover:border-violet-500/50"
-                          : "border-slate-800 hover:border-slate-700"
-                    }`}
-                  >
-                    <div className="flex flex-col sm:flex-row sm:items-center gap-4">
-                      {/* Icon */}
-                      <div className="w-12 h-12 rounded-lg bg-slate-800 flex items-center justify-center flex-shrink-0">
-                        <svg className="w-6 h-6 text-cyan-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
-                        </svg>
+                <Card
+                  key={dataset.id}
+                  className={`bg-slate-900/50 cursor-pointer transition-all hover:ring-indigo-500/30 ${
+                    matchScore && matchScore.overallScore >= 80
+                      ? "ring-indigo-500/30"
+                      : ""
+                  } ${
+                    selectedDataset?.id === dataset.id
+                      ? "ring-2 ring-indigo-500/50"
+                      : ""
+                  }`}
+                  onClick={() => setSelectedDataset(dataset)}
+                >
+                  <CardContent className="space-y-3">
+                    {/* Title row */}
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="flex items-center gap-2 min-w-0">
+                        <FileText className="w-4 h-4 text-indigo-400 flex-shrink-0" />
+                        <h3 className="text-sm font-semibold text-white truncate">
+                          {dataset.filename}
+                        </h3>
                       </div>
-
-                      {/* Info */}
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-3 mb-1">
-                          <h3 className="text-base font-semibold text-white truncate">
-                            {dataset.filename}
-                          </h3>
-                          {matchScore && <ScoreBadge score={matchScore.overallScore} />}
-                          <span className={`text-[11px] font-medium px-2 py-0.5 rounded-full ${taskInfo.color}`}>
-                            {taskInfo.label}
-                          </span>
-                          {flowDs && (
-                            <span className="text-[11px] font-medium px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400">
-                              {formatFlowPrice(flowDs.price)}
-                            </span>
-                          )}
-                        </div>
-                        <div className="flex items-center gap-4 text-xs text-slate-400 mb-2">
-                          {dataset.channels > 0 && <span>{dataset.channels} channels</span>}
-                          {dataset.duration > 0 && <span>{formatDuration(dataset.duration)}</span>}
-                          <span className="font-mono text-slate-500">
-                            {truncateCid(dataset.dataCID)}
-                          </span>
-                          {flowDs && (
-                            <span className="text-slate-500 font-mono">
-                              by {truncateAddress(flowDs.contributor)}
-                            </span>
-                          )}
-                        </div>
-                        <EncryptionStatus
-                          accessType={dataset.accessType}
-                          accessConditions={dataset.accessConditions}
-                          isEncrypted={isEncrypted}
-                          isDemo={isDemo}
-                        />
-                        {matchScore && (
-                          <p className="text-[11px] text-violet-400/80 mt-1 italic">
-                            {matchScore.explanation}
-                          </p>
-                        )}
-                      </div>
-
-                      {/* Actions */}
-                      <div className="flex items-center gap-2 flex-shrink-0">
-                        <button
-                          onClick={() =>
-                            setExpandedId(isExpanded ? null : dataset.id)
-                          }
-                          className={`px-3 py-1.5 rounded-lg border text-xs font-medium transition-colors ${
-                            isExpanded
-                              ? "border-cyan-500/40 bg-cyan-500/10 text-cyan-400"
-                              : "border-slate-700 hover:border-cyan-500/40 text-slate-300 hover:text-cyan-400"
-                          }`}
-                        >
-                          {isExpanded
-                            ? "Close"
-                            : flowDs && flowDs.price > BigInt(0)
-                              ? "Purchase Access"
-                              : isEncrypted
-                                ? "Request Access"
-                                : "View Data"}
-                        </button>
-                        <a
-                          href={`https://w3s.link/ipfs/${dataset.metadataCID}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="px-3 py-1.5 rounded-lg border border-slate-700 hover:border-slate-600 text-xs text-slate-400 hover:text-white transition-colors"
-                        >
-                          Metadata
-                        </a>
-                      </div>
+                      {isEncrypted ? (
+                        <Lock className="w-3.5 h-3.5 text-amber-400 flex-shrink-0" />
+                      ) : (
+                        <Unlock className="w-3.5 h-3.5 text-nv-success flex-shrink-0" />
+                      )}
                     </div>
-                  </div>
 
-                  {/* Expandable detail panel */}
-                  {isExpanded && (
-                    <DatasetDetail
-                      dataset={dataset}
-                      flowDataset={flowDs}
-                      isDemo={isDemo}
-                      onClose={() => setExpandedId(null)}
-                      onPurchaseAccess={handlePurchaseAccess}
-                      isPurchasing={isPurchasing}
-                      walletConnected={wallet.isConnected}
-                    />
-                  )}
-                </div>
+                    {/* Badges row */}
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <Badge variant="secondary">{taskInfo.label}</Badge>
+                      {matchScore && <ScoreBadge score={matchScore.overallScore} />}
+                    </div>
+
+                    {/* Metadata row */}
+                    <div className="flex items-center gap-3 text-xs text-slate-400">
+                      {dataset.channels > 0 && <span>{dataset.channels} ch</span>}
+                      {dataset.duration > 0 && <span>{formatDuration(dataset.duration)}</span>}
+                      {flowDs && (
+                        <span className="text-nv-success font-medium">
+                          {formatFlowPrice(flowDs.price)}
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Match explanation */}
+                    {matchScore && (
+                      <p className="text-[11px] text-indigo-400/80 italic line-clamp-2">
+                        {matchScore.explanation}
+                      </p>
+                    )}
+
+                    {/* Action */}
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="w-full"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setSelectedDataset(dataset);
+                      }}
+                    >
+                      {isEncrypted ? (
+                        <>
+                          <ShoppingCart className="w-3.5 h-3.5" />
+                          Purchase Access
+                        </>
+                      ) : (
+                        <>
+                          <Eye className="w-3.5 h-3.5" />
+                          View Data
+                        </>
+                      )}
+                      <ChevronRight className="w-3.5 h-3.5 ml-auto" />
+                    </Button>
+                  </CardContent>
+                </Card>
               );
             })}
           </div>
@@ -958,6 +1126,37 @@ export default function ExplorePage() {
           </div>
         )}
       </div>
+
+      {/* Dataset Detail Sheet (slide-over from right) */}
+      <Sheet
+        open={sheetOpen}
+        onOpenChange={(open) => {
+          if (!open) setSelectedDataset(null);
+        }}
+      >
+        <SheetContent side="right" className="w-full sm:max-w-lg overflow-y-auto bg-slate-950 border-slate-800">
+          {selectedDataset && (
+            <>
+              <SheetHeader>
+                <SheetTitle className="text-white">{selectedDataset.filename}</SheetTitle>
+                <SheetDescription>
+                  Dataset detail — view on-chain info, encryption status, and waveform data.
+                </SheetDescription>
+              </SheetHeader>
+              <DatasetDetail
+                dataset={selectedDataset}
+                flowDataset={getFlowDataset(selectedDataset.dataCID)}
+                isDemo={isDemo}
+                isFlowDemo={flowIsDemo}
+                onPurchaseAccess={handlePurchaseAccess}
+                onConnectWallet={connectWallet}
+                isPurchasing={isPurchasing}
+                walletConnected={wallet.isConnected}
+              />
+            </>
+          )}
+        </SheetContent>
+      </Sheet>
     </main>
   );
 }

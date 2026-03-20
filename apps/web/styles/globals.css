@@ -2,37 +2,131 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222 47% 11%;
+    --card: 0 0% 100%;
+    --card-foreground: 222 47% 11%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 11%;
+    --primary: 239 84% 67%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 220 14% 96%;
+    --secondary-foreground: 222 47% 11%;
+    --muted: 220 14% 96%;
+    --muted-foreground: 215 16% 47%;
+    --accent: 220 14% 96%;
+    --accent-foreground: 222 47% 11%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: 239 84% 67%;
+    --radius: 0.625rem;
+  }
+
+  .dark {
+    /* Backgrounds — blue-tinted dark */
+    --background: 222 50% 4%;
+    --foreground: 213 31% 96%;
+    --card: 220 35% 8%;
+    --card-foreground: 213 31% 96%;
+    --popover: 220 30% 11%;
+    --popover-foreground: 213 31% 96%;
+
+    /* Primary — indigo-blue (neural imaging) */
+    --primary: 239 84% 67%;
+    --primary-foreground: 0 0% 100%;
+
+    /* Secondary */
+    --secondary: 220 25% 14%;
+    --secondary-foreground: 213 31% 96%;
+
+    /* Muted */
+    --muted: 220 25% 14%;
+    --muted-foreground: 215 16% 62%;
+
+    /* Accent — warm amber */
+    --accent: 38 92% 50%;
+    --accent-foreground: 0 0% 9%;
+
+    /* Destructive */
+    --destructive: 347 77% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    /* Borders */
+    --border: 217 19% 17%;
+    --input: 220 25% 14%;
+    --ring: 239 84% 67%;
+  }
+
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/* ── NeuroVault custom tokens ────────────────────────────────────── */
+
+:root .dark {
+  --nv-bg-hover: 215 22% 15%;
+  --nv-border-muted: 218 28% 14%;
+  --nv-text-tertiary: 215 14% 46%;
+  --nv-success: 160 84% 39%;
+  --nv-warning: 32 95% 44%;
+  --nv-error: 347 77% 60%;
+}
+
+/* ── Utility classes ─────────────────────────────────────────────── */
+
 @layer utilities {
   .animate-fadeIn {
-    animation: fadeIn 0.3s ease-out;
+    animation: fadeIn 0.2s ease-out;
   }
 
   @keyframes fadeIn {
-    from {
-      opacity: 0;
-      transform: translateY(8px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
+    from { opacity: 0; transform: translateY(4px); }
+    to { opacity: 1; transform: translateY(0); }
   }
 }
 
-/* ── Skeleton shimmer ────────────────────────────────────────────── */
-@keyframes skeletonShimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
+/* ── Page transition ─────────────────────────────────────────────── */
+@keyframes pageFadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
 }
-.skeleton-shimmer {
-  background: linear-gradient(
-    90deg,
-    transparent 0%,
-    rgba(148, 163, 184, 0.06) 50%,
-    transparent 100%
-  );
-  background-size: 200% 100%;
-  animation: skeletonShimmer 1.8s ease-in-out infinite;
+.page-transition {
+  animation: pageFadeIn 0.2s ease-out;
+}
+
+/* ── Landing page scroll reveal ──────────────────────────────────── */
+.reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.reveal-stagger > * {
+  opacity: 0;
+  transform: translateY(16px);
+  transition: opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.reveal-stagger.visible > *:nth-child(1) { transition-delay: 0ms; }
+.reveal-stagger.visible > *:nth-child(2) { transition-delay: 80ms; }
+.reveal-stagger.visible > *:nth-child(3) { transition-delay: 160ms; }
+.reveal-stagger.visible > *:nth-child(4) { transition-delay: 240ms; }
+.reveal-stagger.visible > * {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 /* ── Mobile menu slide ───────────────────────────────────────────── */
@@ -44,78 +138,33 @@
   animation: slideDown 0.2s ease-out;
 }
 
-/* ── Page transition fade ────────────────────────────────────────── */
-@keyframes pageFadeIn {
-  from { opacity: 0; transform: translateY(6px); }
-  to { opacity: 1; transform: translateY(0); }
+/* ── Skeleton shimmer ────────────────────────────────────────────── */
+@keyframes skeletonShimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
 }
-.page-transition {
-  animation: pageFadeIn 0.3s ease-out;
-}
-
-/* ── Landing page scroll reveal ──────────────────────────────────── */
-.reveal {
-  opacity: 0;
-  transform: translateY(32px);
-  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
-    transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
-}
-.reveal.visible {
-  opacity: 1;
-  transform: translateY(0);
+.skeleton-shimmer {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    hsl(var(--primary) / 0.04) 50%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
+  animation: skeletonShimmer 1.8s ease-in-out infinite;
 }
 
-/* Staggered children */
-.reveal-stagger > * {
-  opacity: 0;
-  transform: translateY(24px);
-  transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1),
-    transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
-}
-.reveal-stagger.visible > *:nth-child(1) { transition-delay: 0ms; }
-.reveal-stagger.visible > *:nth-child(2) { transition-delay: 100ms; }
-.reveal-stagger.visible > *:nth-child(3) { transition-delay: 200ms; }
-.reveal-stagger.visible > *:nth-child(4) { transition-delay: 300ms; }
-.reveal-stagger.visible > *:nth-child(5) { transition-delay: 400ms; }
-.reveal-stagger.visible > * {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-/* Glow pulse for hero badge */
-@keyframes glowPulse {
-  0%, 100% { box-shadow: 0 0 8px rgba(34, 211, 238, 0.3); }
-  50% { box-shadow: 0 0 20px rgba(34, 211, 238, 0.5); }
-}
-.glow-pulse {
-  animation: glowPulse 3s ease-in-out infinite;
-}
-
-/* Counter animation */
-@keyframes countUp {
-  from { opacity: 0; transform: scale(0.5); }
-  to { opacity: 1; transform: scale(1); }
-}
-.animate-count {
-  animation: countUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-
-/* Shimmer gradient animation */
-@keyframes shimmer {
-  0% { background-position: 200% center; }
-  100% { background-position: -200% center; }
-}
-
-/* Heading font utility */
+/* ── Heading font utility ────────────────────────────────────────── */
 .font-heading {
   font-family: var(--font-heading), system-ui, sans-serif;
+  letter-spacing: -0.02em;
 }
 
 /* ── Sonner toast overrides ──────────────────────────────────────── */
 [data-sonner-toaster] [data-sonner-toast] {
-  --normal-bg: theme(colors.slate.900);
-  --normal-border: theme(colors.slate.800);
-  --normal-text: theme(colors.slate.100);
-  border-radius: 0.75rem;
+  --normal-bg: hsl(var(--popover));
+  --normal-border: hsl(var(--border));
+  --normal-text: hsl(var(--foreground));
+  border-radius: 0.625rem;
   border-color: var(--normal-border);
 }

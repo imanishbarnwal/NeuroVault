@@ -1,82 +1,22 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect } from "react";
 import Link from "next/link";
-
-/* ── EEG Waveform Canvas ─────────────────────────────────────────── */
-
-function EEGCanvas() {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-
-    let animId: number;
-    let t = 0;
-    let w = 0;
-    let h = 0;
-
-    const resize = () => {
-      const dpr = window.devicePixelRatio || 1;
-      w = canvas.offsetWidth;
-      h = canvas.offsetHeight;
-      canvas.width = w * dpr;
-      canvas.height = h * dpr;
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    };
-
-    resize();
-    window.addEventListener("resize", resize);
-
-    const CHANNELS = 8;
-
-    const draw = () => {
-      ctx.clearRect(0, 0, w, h);
-      const chH = h / CHANNELS;
-
-      for (let ch = 0; ch < CHANNELS; ch++) {
-        const baseY = chH * (ch + 0.5);
-        const isCyan = ch % 2 === 0;
-        const alpha = 0.12 + ch * 0.015;
-
-        ctx.beginPath();
-        ctx.strokeStyle = isCyan
-          ? `rgba(34, 211, 238, ${alpha})`
-          : `rgba(167, 139, 250, ${alpha})`;
-        ctx.lineWidth = 1.2;
-
-        for (let x = 0; x < w; x++) {
-          const s = t + x * 0.004;
-          const y =
-            baseY +
-            Math.sin(s * 1.8 + ch * 1.1) * 18 +
-            Math.sin(s * 4.7 + ch * 2.3) * 9 +
-            Math.sin(s * 11 + ch * 3.7) * 5 +
-            Math.sin(s * 23 + ch * 0.8) * 2.5 +
-            (Math.random() - 0.5) * 1;
-
-          if (x === 0) ctx.moveTo(x, y);
-          else ctx.lineTo(x, y);
-        }
-        ctx.stroke();
-      }
-
-      t += 0.012;
-      animId = requestAnimationFrame(draw);
-    };
-
-    draw();
-    return () => {
-      window.removeEventListener("resize", resize);
-      cancelAnimationFrame(animId);
-    };
-  }, []);
-
-  return <canvas ref={canvasRef} className="absolute inset-0 w-full h-full" />;
-}
+import {
+  Shield,
+  Globe,
+  Coins,
+  Upload,
+  Search,
+  ArrowRight,
+  ExternalLink,
+  Brain,
+  Lock,
+  HardDrive,
+  Wallet,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 
 /* ── Scroll reveal observer ──────────────────────────────────────── */
 
@@ -102,6 +42,137 @@ function useScrollReveal() {
   }, []);
 }
 
+/* ── EEG Waveform SVG ────────────────────────────────────────────── */
+
+function EEGWaveform() {
+  return (
+    <div className="relative w-full h-full min-h-[400px]">
+      <svg
+        viewBox="0 0 500 400"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        className="w-full h-full"
+        preserveAspectRatio="xMidYMid slice"
+      >
+        {/* Channel labels */}
+        <text x="8" y="53" className="fill-muted-foreground" fontSize="9" fontFamily="monospace" opacity="0.5">Fp1</text>
+        <text x="8" y="103" className="fill-muted-foreground" fontSize="9" fontFamily="monospace" opacity="0.5">Fp2</text>
+        <text x="8" y="153" className="fill-muted-foreground" fontSize="9" fontFamily="monospace" opacity="0.5">C3</text>
+        <text x="8" y="203" className="fill-muted-foreground" fontSize="9" fontFamily="monospace" opacity="0.5">C4</text>
+        <text x="8" y="253" className="fill-muted-foreground" fontSize="9" fontFamily="monospace" opacity="0.5">O1</text>
+        <text x="8" y="303" className="fill-muted-foreground" fontSize="9" fontFamily="monospace" opacity="0.5">O2</text>
+        <text x="8" y="353" className="fill-muted-foreground" fontSize="9" fontFamily="monospace" opacity="0.5">T3</text>
+
+        {/* EEG Wave Channel 1 - Alpha rhythm */}
+        <path
+          d="M30,50 Q45,30 60,50 T90,50 Q105,25 120,50 T150,50 Q165,35 180,50 T210,50 Q225,20 240,50 T270,50 Q285,30 300,50 T330,50 Q345,25 360,50 T390,50 Q405,35 420,50 T450,50 Q465,28 480,50"
+          stroke="hsl(var(--primary))"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+          opacity="0.7"
+          className="eeg-wave eeg-wave-1"
+        />
+
+        {/* EEG Wave Channel 2 - Beta rhythm */}
+        <path
+          d="M30,100 Q40,85 50,100 T70,100 Q80,80 90,100 T110,100 Q120,88 130,100 T150,100 Q160,78 170,100 T190,100 Q200,85 210,100 T230,100 Q240,82 250,100 T270,100 Q280,90 290,100 T310,100 Q320,75 330,100 T350,100 Q360,88 370,100 T390,100 Q400,80 410,100 T430,100 Q440,85 450,100 T470,100 Q480,90 490,100"
+          stroke="hsl(var(--primary))"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+          opacity="0.5"
+          className="eeg-wave eeg-wave-2"
+        />
+
+        {/* EEG Wave Channel 3 - Theta rhythm */}
+        <path
+          d="M30,150 Q55,120 80,150 T130,150 Q155,115 180,150 T230,150 Q255,125 280,150 T330,150 Q355,110 380,150 T430,150 Q455,120 480,150"
+          stroke="hsl(var(--primary))"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+          opacity="0.6"
+          className="eeg-wave eeg-wave-3"
+        />
+
+        {/* EEG Wave Channel 4 - Sharp waves */}
+        <path
+          d="M30,200 L50,200 L55,175 L60,220 L65,190 L70,210 L80,200 L110,200 L115,170 L120,225 L125,185 L130,215 L140,200 L170,200 L175,178 L180,218 L185,192 L190,208 L200,200 L230,200 L235,172 L240,222 L245,188 L250,212 L260,200 L290,200 L295,176 L300,220 L305,190 L310,210 L320,200 L350,200 L355,174 L360,222 L365,188 L370,212 L380,200 L410,200 L415,170 L420,225 L425,186 L430,214 L440,200 L470,200 L475,178 L480,200"
+          stroke="hsl(var(--primary))"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          opacity="0.55"
+          className="eeg-wave eeg-wave-4"
+        />
+
+        {/* EEG Wave Channel 5 - Slow delta */}
+        <path
+          d="M30,250 Q80,220 130,250 T230,250 Q280,225 330,250 T430,250 Q460,230 480,250"
+          stroke="hsl(var(--primary))"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+          opacity="0.45"
+          className="eeg-wave eeg-wave-5"
+        />
+
+        {/* EEG Wave Channel 6 - Mixed */}
+        <path
+          d="M30,300 Q45,280 60,300 T90,300 Q115,275 140,300 T170,300 Q185,285 200,300 T230,300 Q255,270 280,300 T310,300 Q325,280 340,300 T370,300 Q395,275 420,300 T450,300 Q465,285 480,300"
+          stroke="hsl(var(--primary))"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+          opacity="0.4"
+          className="eeg-wave eeg-wave-6"
+        />
+
+        {/* EEG Wave Channel 7 - Spindles */}
+        <path
+          d="M30,350 L80,350 Q85,335 90,350 T100,350 Q105,335 110,350 T120,350 L170,350 Q175,330 180,350 T190,350 Q195,332 200,350 T210,350 L260,350 Q265,333 270,350 T280,350 Q285,335 290,350 T300,350 L350,350 Q355,330 360,350 T370,350 Q375,333 380,350 T390,350 L440,350 Q445,335 450,350 T460,350 Q465,332 470,350 T480,350"
+          stroke="hsl(var(--primary))"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+          opacity="0.35"
+          className="eeg-wave eeg-wave-7"
+        />
+
+        {/* Horizontal grid lines */}
+        {[50, 100, 150, 200, 250, 300, 350].map((y) => (
+          <line
+            key={y}
+            x1="28"
+            y1={y}
+            x2="490"
+            y2={y}
+            stroke="hsl(var(--border))"
+            strokeWidth="0.5"
+            opacity="0.3"
+          />
+        ))}
+      </svg>
+
+      {/* CSS animation for stroke-dashoffset */}
+      <style jsx>{`
+        .eeg-wave {
+          stroke-dasharray: 1200;
+          stroke-dashoffset: 1200;
+          animation: eeg-draw 3s ease-out forwards;
+        }
+        .eeg-wave-1 { animation-delay: 0s; }
+        .eeg-wave-2 { animation-delay: 0.15s; }
+        .eeg-wave-3 { animation-delay: 0.3s; }
+        .eeg-wave-4 { animation-delay: 0.45s; }
+        .eeg-wave-5 { animation-delay: 0.6s; }
+        .eeg-wave-6 { animation-delay: 0.75s; }
+        .eeg-wave-7 { animation-delay: 0.9s; }
+        @keyframes eeg-draw {
+          to {
+            stroke-dashoffset: 0;
+          }
+        }
+      `}</style>
+    </div>
+  );
+}
+
 /* ── Data ─────────────────────────────────────────────────────────── */
 
 const STEPS = [
@@ -109,25 +180,25 @@ const STEPS = [
     num: "01",
     title: "Upload",
     desc: "Parse EDF+ brain recordings in-browser. Extract features, visualize channels, prepare datasets.",
-    color: "cyan",
+    icon: Upload,
   },
   {
     num: "02",
     title: "Encrypt",
     desc: "Set token-gated access conditions with Lit Protocol. Your data stays private until conditions are met.",
-    color: "violet",
+    icon: Lock,
   },
   {
     num: "03",
     title: "Store",
     desc: "Data is stored on Filecoin via Storacha with verifiable storage proofs. No vendor lock-in.",
-    color: "emerald",
+    icon: HardDrive,
   },
   {
     num: "04",
     title: "Earn",
     desc: "Researchers purchase access on-chain. Contributors receive automatic payments on Flow & NEAR.",
-    color: "amber",
+    icon: Wallet,
   },
 ];
 
@@ -135,38 +206,17 @@ const WHY_CARDS = [
   {
     title: "Privacy First",
     desc: "Client-side encryption with Lit Protocol. Only authorized users can decrypt. Your neural data, your rules.",
-    icon: (
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z"
-      />
-    ),
-    gradient: "from-cyan-400 to-teal-400",
+    icon: Shield,
   },
   {
-    title: "Decentralized",
+    title: "Decentralized Infrastructure",
     desc: "No single point of failure. Content-addressed storage on Filecoin ensures data integrity and availability forever.",
-    icon: (
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        d="M12 21a9.004 9.004 0 008.716-6.747M12 21a9.004 9.004 0 01-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 017.843 4.582M12 3a8.997 8.997 0 00-7.843 4.582m15.686 0A11.953 11.953 0 0112 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0121 12c0 .778-.099 1.533-.284 2.253m0 0A17.919 17.919 0 0112 16.5c-3.162 0-6.133-.815-8.716-2.247m0 0A9.015 9.015 0 013 12c0-1.605.42-3.113 1.157-4.418"
-      />
-    ),
-    gradient: "from-violet-400 to-purple-400",
+    icon: Globe,
   },
   {
     title: "Fair Compensation",
     desc: "Smart contracts on Flow and NEAR automatically pay data contributors when researchers purchase access.",
-    icon: (
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        d="M2.25 18.75a60.07 60.07 0 0115.797 2.101c.727.198 1.453-.342 1.453-1.096V18.75M3.75 4.5v.75A.75.75 0 013 6h-.75m0 0v-.375c0-.621.504-1.125 1.125-1.125H20.25M2.25 6v9m18-10.5v.75c0 .414.336.75.75.75h.75m-1.5-1.5h.375c.621 0 1.125.504 1.125 1.125v9.75c0 .621-.504 1.125-1.125 1.125h-.375m1.5-1.5H21a.75.75 0 00-.75.75v.75m0 0H3.75m0 0h-.375a1.125 1.125 0 01-1.125-1.125V15m1.5 1.5v-.75A.75.75 0 003 15h-.75M15 10.5a3 3 0 11-6 0 3 3 0 016 0zm3 0h.008v.008H18V10.5zm-12 0h.008v.008H6V10.5z"
-      />
-    ),
-    gradient: "from-emerald-400 to-green-400",
+    icon: Coins,
   },
 ];
 
@@ -176,42 +226,36 @@ const TECH_STACK = [
     desc: "Decentralized Storage",
     href: "https://filecoin.io",
     logo: "/logos/filecoin.svg",
-    color: "bg-cyan-500/10 text-cyan-400 border-cyan-500/20 hover:border-cyan-400/40",
   },
   {
     name: "Storacha",
     desc: "Storage SDK",
     href: "https://storacha.network",
     logo: "/logos/storacha.svg",
-    color: "bg-cyan-500/10 text-cyan-400 border-cyan-500/20 hover:border-cyan-400/40",
   },
   {
     name: "Lit Protocol",
     desc: "Access Control",
     href: "https://litprotocol.com",
     logo: "/logos/lit.svg",
-    color: "bg-violet-500/10 text-violet-400 border-violet-500/20 hover:border-violet-400/40",
   },
   {
     name: "Flow",
     desc: "Smart Contracts",
     href: "https://flow.com",
     logo: "/logos/flow.svg",
-    color: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20 hover:border-emerald-400/40",
   },
   {
     name: "NEAR",
     desc: "Cross-Chain Registry",
     href: "https://near.org",
     logo: "/logos/near.svg",
-    color: "bg-amber-500/10 text-amber-400 border-amber-500/20 hover:border-amber-400/40",
   },
   {
     name: "World ID",
     desc: "Proof of Personhood",
     href: "https://worldcoin.org/world-id",
     logo: "/logos/worldcoin.svg",
-    color: "bg-sky-500/10 text-sky-400 border-sky-500/20 hover:border-sky-400/40",
   },
 ];
 
@@ -222,158 +266,223 @@ const STATS = [
   { value: "89", label: "Access Licenses", suffix: "" },
 ];
 
-/* ── Color helpers ────────────────────────────────────────────────── */
-
-function stepColor(c: string, part: "num" | "border" | "dot") {
-  const map: Record<string, Record<string, string>> = {
-    cyan: {
-      num: "text-cyan-400",
-      border: "border-cyan-500/30 hover:border-cyan-400/50",
-      dot: "bg-cyan-400",
-    },
-    violet: {
-      num: "text-violet-400",
-      border: "border-violet-500/30 hover:border-violet-400/50",
-      dot: "bg-violet-400",
-    },
-    emerald: {
-      num: "text-emerald-400",
-      border: "border-emerald-500/30 hover:border-emerald-400/50",
-      dot: "bg-emerald-400",
-    },
-    amber: {
-      num: "text-amber-400",
-      border: "border-amber-500/30 hover:border-amber-400/50",
-      dot: "bg-amber-400",
-    },
-  };
-  return map[c]?.[part] ?? "";
-}
-
 /* ── Page ─────────────────────────────────────────────────────────── */
 
 export default function Home() {
   useScrollReveal();
 
   return (
-    <main className="min-h-screen overflow-x-hidden">
+    <main className="min-h-screen overflow-x-hidden bg-background">
       {/* ───── Navigation ───── */}
-      <nav className="border-b border-slate-800/50 backdrop-blur-md sticky top-0 z-50 bg-slate-950/80">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2.5 group">
-            <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-cyan-400 to-violet-500 flex items-center justify-center shadow-lg shadow-cyan-500/20 group-hover:shadow-cyan-500/40 transition-shadow">
-              <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M9.75 3.104v5.714a2.25 2.25 0 01-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 014.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15.3M14.25 3.104c.251.023.501.05.75.082M19.8 15.3l-1.57.393A9.065 9.065 0 0112 15a9.065 9.065 0 00-6.23.693L5 14.5m14.8.8l1.402 1.402c1.232 1.232.65 3.318-1.067 3.611A48.309 48.309 0 0112 21c-2.773 0-5.491-.235-8.135-.687-1.718-.293-2.3-2.379-1.067-3.61L5 14.5" />
-              </svg>
+      <nav className="border-b border-border backdrop-blur-md sticky top-0 z-50 bg-background/80">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
+          <Link href="/" className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
+              <Brain className="w-4 h-4 text-primary-foreground" />
             </div>
-            <span className="text-lg font-semibold text-white font-heading tracking-tight">
+            <span className="text-lg font-heading font-semibold text-foreground tracking-tight">
               NeuroVault
             </span>
           </Link>
 
           <div className="flex items-center gap-6">
-            <Link href="/explore" className="text-sm text-slate-400 hover:text-cyan-400 transition-colors">
+            <Link
+              href="/explore"
+              className="hidden sm:inline text-sm text-muted-foreground hover:text-foreground transition-colors"
+            >
               Explore
-            </Link>
-            <Link href="/upload" className="text-sm text-slate-400 hover:text-cyan-400 transition-colors">
-              Upload
             </Link>
             <Link
               href="/upload"
-              className="text-sm px-5 py-2 rounded-lg bg-gradient-to-r from-cyan-500 to-violet-500 hover:from-cyan-400 hover:to-violet-400 text-white font-medium transition-all shadow-lg shadow-cyan-500/20 hover:shadow-cyan-500/30"
+              className="hidden sm:inline text-sm text-muted-foreground hover:text-foreground transition-colors"
             >
-              Get Started
+              Upload
             </Link>
+            <Button asChild size="sm">
+              <Link href="/upload">Get Started</Link>
+            </Button>
           </div>
         </div>
       </nav>
 
       {/* ───── Hero Section ───── */}
-      <section className="relative min-h-[90vh] flex items-center overflow-hidden">
-        {/* EEG animated background */}
-        <div className="absolute inset-0 pointer-events-none opacity-40">
-          <EEGCanvas />
-        </div>
+      <section className="relative border-b border-border">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-16 sm:py-24 lg:py-32">
+          <div className="grid lg:grid-cols-2 gap-16 items-center">
+            {/* Left column - Text */}
+            <div>
+              <Badge variant="secondary" className="mb-6">
+                Built for PL Genesis: Frontiers of Collaboration
+              </Badge>
 
-        {/* Gradient overlays */}
-        <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute -top-40 -right-40 w-[600px] h-[600px] bg-cyan-500/8 rounded-full blur-[120px]" />
-          <div className="absolute top-20 -left-40 w-[500px] h-[500px] bg-violet-500/8 rounded-full blur-[100px]" />
-          <div className="absolute bottom-0 left-0 w-full h-48 bg-gradient-to-t from-slate-950 to-transparent" />
-        </div>
-
-        {/* Grid pattern overlay */}
-        <div
-          className="absolute inset-0 pointer-events-none opacity-[0.03]"
-          style={{
-            backgroundImage:
-              "linear-gradient(rgba(148,163,184,0.3) 1px, transparent 1px), linear-gradient(90deg, rgba(148,163,184,0.3) 1px, transparent 1px)",
-            backgroundSize: "60px 60px",
-          }}
-        />
-
-        <div className="max-w-7xl mx-auto px-6 py-24 relative z-10 w-full">
-          <div className="max-w-4xl mx-auto text-center">
-            {/* Badge */}
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 text-sm mb-10 glow-pulse">
-              <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
-              Built for PL Genesis: Frontiers of Collaboration
-            </div>
-
-            {/* Headline */}
-            <h1 className="font-heading text-5xl sm:text-6xl lg:text-7xl font-bold tracking-tight mb-8 leading-[1.1]">
-              <span className="text-white">Privacy-Preserving</span>
-              <br />
-              <span className="bg-gradient-to-r from-cyan-400 via-violet-400 to-cyan-400 bg-clip-text text-transparent bg-[length:200%_auto] animate-[shimmer_3s_linear_infinite]">
+              <h1 className="font-heading text-3xl sm:text-5xl lg:text-6xl font-semibold tracking-tight text-foreground leading-[1.08] mb-6">
+                Privacy-Preserving
+                <br />
                 Neural Data Commons
-              </span>
-            </h1>
+              </h1>
 
-            {/* Subtitle */}
-            <p className="text-lg sm:text-xl text-slate-400 mb-12 max-w-2xl mx-auto leading-relaxed">
-              A decentralized marketplace for securely storing, sharing, and
-              monetizing brain-computer interface data — with encrypted access
-              control, on-chain licensing, and proof-of-personhood.
-            </p>
+              <p className="text-sm text-muted-foreground leading-relaxed max-w-lg mb-8">
+                A decentralized marketplace for securely storing, sharing, and
+                monetizing brain-computer interface data -- with encrypted access
+                control, on-chain licensing, and proof-of-personhood.
+              </p>
 
-            {/* CTAs */}
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16">
-              <Link
-                href="/upload"
-                className="group inline-flex items-center gap-2 px-8 py-3.5 rounded-xl bg-gradient-to-r from-cyan-500 to-violet-500 hover:from-cyan-400 hover:to-violet-400 text-white font-semibold transition-all shadow-xl shadow-cyan-500/25 hover:shadow-cyan-500/40 hover:-translate-y-0.5"
-              >
-                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
-                </svg>
-                Upload Data
-                <svg className="w-4 h-4 transition-transform group-hover:translate-x-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
-                </svg>
-              </Link>
-              <Link
-                href="/explore"
-                className="group inline-flex items-center gap-2 px-8 py-3.5 rounded-xl border border-slate-700 hover:border-slate-500 text-slate-300 hover:text-white font-medium transition-all hover:-translate-y-0.5"
-              >
-                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
-                </svg>
-                Explore Datasets
-              </Link>
+              {/* Stats bar */}
+              <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs sm:text-sm text-muted-foreground mb-10">
+                {STATS.map((stat, i) => (
+                  <span key={stat.label} className="flex items-center gap-x-2">
+                    <span className="text-foreground font-medium">
+                      {stat.value}{stat.suffix}
+                    </span>
+                    <span>{stat.label}</span>
+                    {i < STATS.length - 1 && (
+                      <span className="text-border mx-1">·</span>
+                    )}
+                  </span>
+                ))}
+              </div>
+
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+                <Button asChild>
+                  <Link href="/upload" className="gap-2">
+                    <Upload className="w-4 h-4" />
+                    Upload Data
+                    <ArrowRight className="w-4 h-4" />
+                  </Link>
+                </Button>
+                <Button variant="outline" asChild>
+                  <Link href="/explore" className="gap-2">
+                    <Search className="w-4 h-4" />
+                    Explore Datasets
+                  </Link>
+                </Button>
+              </div>
             </div>
 
-            {/* Tech logos row */}
-            <div className="flex flex-wrap items-center justify-center gap-8 text-slate-500 text-sm">
-              <span className="text-slate-600 text-xs uppercase tracking-widest">Powered by</span>
-              {TECH_STACK.slice(0, 5).map((t) => (
+            {/* Right column - EEG Visualization */}
+            <div className="hidden lg:block">
+              <div className="rounded-xl border border-border bg-card p-4">
+                <div className="flex items-center gap-2 mb-3 px-1">
+                  <div className="w-2.5 h-2.5 rounded-full bg-border" />
+                  <div className="w-2.5 h-2.5 rounded-full bg-border" />
+                  <div className="w-2.5 h-2.5 rounded-full bg-border" />
+                  <span className="text-xs text-[var(--nv-text-tertiary)] ml-2 font-mono">
+                    eeg_recording_047.edf
+                  </span>
+                </div>
+                <EEGWaveform />
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ───── How It Works ───── */}
+      <section className="border-b border-border">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-16 sm:py-24">
+          <div className="mb-16 reveal">
+            <p className="text-sm text-[var(--nv-text-tertiary)] font-medium tracking-widest uppercase mb-3">
+              How It Works
+            </p>
+            <h2 className="font-heading text-2xl sm:text-3xl font-semibold tracking-tight text-foreground">
+              From Brain to Blockchain
+            </h2>
+          </div>
+
+          {/* Timeline */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 md:gap-0 reveal-stagger">
+            {STEPS.map((step, i) => {
+              const Icon = step.icon;
+              return (
+                <div key={step.num} className="relative flex flex-col">
+                  {/* Timeline connector */}
+                  <div className="flex items-center mb-6 md:mb-8">
+                    <div className="w-10 h-10 rounded-full border-2 border-primary bg-background flex items-center justify-center shrink-0 relative z-10">
+                      <Icon className="w-4 h-4 text-primary" />
+                    </div>
+                    {i < STEPS.length - 1 && (
+                      <div className="hidden md:block flex-1 h-px bg-border ml-0" />
+                    )}
+                  </div>
+
+                  <div className="md:pr-8">
+                    <p className="text-xs text-[var(--nv-text-tertiary)] font-mono mb-1">
+                      {step.num}
+                    </p>
+                    <h3 className="font-heading text-base font-semibold text-foreground mb-2">
+                      {step.title}
+                    </h3>
+                    <p className="text-sm text-muted-foreground leading-relaxed">
+                      {step.desc}
+                    </p>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* ───── Built for Researchers ───── */}
+      <section className="border-b border-border">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-16 sm:py-24">
+          <div className="mb-16 reveal">
+            <p className="text-sm text-[var(--nv-text-tertiary)] font-medium tracking-widest uppercase mb-3">
+              Why NeuroVault
+            </p>
+            <h2 className="font-heading text-2xl sm:text-3xl font-semibold tracking-tight text-foreground">
+              Built for Researchers
+            </h2>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-[1fr_1.5fr_1fr] gap-6 reveal-stagger">
+            {WHY_CARDS.map((card) => {
+              const Icon = card.icon;
+              return (
+                <div
+                  key={card.title}
+                  className="rounded-xl border border-border bg-card p-8 transition-colors hover:border-primary/20"
+                >
+                  <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center mb-5">
+                    <Icon className="w-5 h-5 text-primary" />
+                  </div>
+
+                  <h3 className="font-heading text-base font-semibold text-foreground mb-2">
+                    {card.title}
+                  </h3>
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    {card.desc}
+                  </p>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* ───── Tech Stack ───── */}
+      <section className="border-b border-border">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-12 sm:py-16">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6 sm:gap-10 reveal">
+            <p className="text-sm text-[var(--nv-text-tertiary)] font-medium tracking-widest uppercase whitespace-nowrap">
+              Built with
+            </p>
+            <div className="flex flex-wrap items-center gap-8">
+              {TECH_STACK.map((tech) => (
                 <a
-                  key={t.name}
-                  href={t.href}
+                  key={tech.name}
+                  href={tech.href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-2 text-slate-500 hover:text-slate-300 transition-colors font-medium group"
+                  className="flex items-center gap-2.5 text-muted-foreground hover:text-foreground transition-colors group"
                 >
-                  <img src={t.logo} alt={t.name} className="w-5 h-5 opacity-60 group-hover:opacity-100 transition-opacity" />
-                  {t.name}
+                  <img
+                    src={tech.logo}
+                    alt={tech.name}
+                    className="w-5 h-5 opacity-50 group-hover:opacity-80 transition-opacity"
+                  />
+                  <span className="text-sm font-medium">{tech.name}</span>
+                  <ExternalLink className="w-3 h-3 opacity-0 group-hover:opacity-50 transition-opacity" />
                 </a>
               ))}
             </div>
@@ -381,272 +490,71 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ───── How It Works ───── */}
-      <section className="relative border-t border-slate-800/50">
-        <div className="max-w-7xl mx-auto px-6 py-28">
-          <div className="text-center mb-20 reveal">
-            <p className="text-cyan-400 text-sm font-medium tracking-widest uppercase mb-4">
-              How It Works
-            </p>
-            <h2 className="font-heading text-4xl sm:text-5xl font-bold text-white mb-6">
-              From Brain to Blockchain
-            </h2>
-            <p className="text-slate-400 max-w-xl mx-auto text-lg">
-              Four steps to contribute neural data to the decentralized commons
-              while maintaining full privacy control.
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 reveal-stagger">
-            {STEPS.map((step) => (
-              <div
-                key={step.num}
-                className={`group relative rounded-2xl border bg-slate-900/40 backdrop-blur-sm p-8 transition-all hover:-translate-y-1 ${stepColor(step.color, "border")}`}
-              >
-                {/* Step number */}
-                <span className={`font-heading text-5xl font-bold ${stepColor(step.color, "num")} opacity-20 absolute top-4 right-6`}>
-                  {step.num}
-                </span>
-
-                {/* Dot indicator */}
-                <div className={`w-3 h-3 rounded-full ${stepColor(step.color, "dot")} mb-6 shadow-lg`} />
-
-                <h3 className="font-heading text-xl font-semibold text-white mb-3">
-                  {step.title}
-                </h3>
-                <p className="text-sm text-slate-400 leading-relaxed">
-                  {step.desc}
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ───── Why NeuroVault ───── */}
-      <section className="relative border-t border-slate-800/50">
-        <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[400px] bg-violet-500/5 rounded-full blur-[120px]" />
-        </div>
-
-        <div className="max-w-7xl mx-auto px-6 py-28 relative">
-          <div className="text-center mb-20 reveal">
-            <p className="text-violet-400 text-sm font-medium tracking-widest uppercase mb-4">
-              Why NeuroVault
-            </p>
-            <h2 className="font-heading text-4xl sm:text-5xl font-bold text-white mb-6">
-              Built for Researchers, by Researchers
-            </h2>
-            <p className="text-slate-400 max-w-xl mx-auto text-lg">
-              The neural data infrastructure that neuroscience deserves.
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-8 reveal-stagger">
-            {WHY_CARDS.map((card) => (
-              <div
-                key={card.title}
-                className="group relative rounded-2xl border border-slate-800 bg-slate-900/40 p-8 hover:border-slate-700 transition-all hover:-translate-y-1"
-              >
-                {/* Icon */}
-                <div className={`w-14 h-14 rounded-xl bg-gradient-to-br ${card.gradient} p-[1px] mb-6`}>
-                  <div className="w-full h-full rounded-xl bg-slate-900 flex items-center justify-center">
-                    <svg
-                      className={`w-6 h-6 bg-gradient-to-br ${card.gradient} bg-clip-text`}
-                      style={{ color: "rgb(34, 211, 238)" }}
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                      strokeWidth={1.5}
-                    >
-                      {card.icon}
-                    </svg>
-                  </div>
-                </div>
-
-                <h3 className="font-heading text-xl font-semibold text-white mb-3">
-                  {card.title}
-                </h3>
-                <p className="text-sm text-slate-400 leading-relaxed">
-                  {card.desc}
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ───── Tech Stack ───── */}
-      <section className="border-t border-slate-800/50">
-        <div className="max-w-7xl mx-auto px-6 py-28">
-          <div className="text-center mb-16 reveal">
-            <p className="text-emerald-400 text-sm font-medium tracking-widest uppercase mb-4">
-              Tech Stack
-            </p>
-            <h2 className="font-heading text-4xl sm:text-5xl font-bold text-white mb-6">
-              Cutting-Edge Infrastructure
-            </h2>
-            <p className="text-slate-400 max-w-xl mx-auto text-lg">
-              Built on the most advanced decentralized protocols for storage,
-              access control, payments, and identity.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-4 max-w-3xl mx-auto reveal-stagger">
-            {TECH_STACK.map((tech) => (
-              <a
-                key={tech.name}
-                href={tech.href}
-                target="_blank"
-                rel="noopener noreferrer"
-                className={`group rounded-xl border p-6 text-center transition-all hover:-translate-y-1 ${tech.color}`}
-              >
-                <img src={tech.logo} alt={tech.name} className="w-10 h-10 mx-auto mb-3 opacity-80 group-hover:opacity-100 transition-opacity" />
-                <p className="font-heading font-semibold text-lg mb-1">
-                  {tech.name}
-                </p>
-                <p className="text-xs opacity-60">{tech.desc}</p>
-                <svg
-                  className="w-4 h-4 mx-auto mt-3 opacity-0 group-hover:opacity-60 transition-opacity"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  strokeWidth={2}
-                >
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
-                </svg>
-              </a>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ───── Stats ───── */}
-      <section className="border-t border-slate-800/50 relative">
-        <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-3xl h-px bg-gradient-to-r from-transparent via-cyan-500/40 to-transparent" />
-        </div>
-
-        <div className="max-w-5xl mx-auto px-6 py-24">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 reveal-stagger">
-            {STATS.map((stat) => (
-              <div key={stat.label} className="text-center">
-                <p className="font-heading text-4xl sm:text-5xl font-bold bg-gradient-to-b from-white to-slate-400 bg-clip-text text-transparent mb-2">
-                  {stat.value}
-                  {stat.suffix && (
-                    <span className="text-2xl sm:text-3xl">{stat.suffix}</span>
-                  )}
-                </p>
-                <p className="text-sm text-slate-500 uppercase tracking-wider">
-                  {stat.label}
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* ───── CTA Section ───── */}
-      <section className="border-t border-slate-800/50">
-        <div className="max-w-7xl mx-auto px-6 py-28">
-          <div className="reveal relative rounded-3xl border border-slate-800 bg-gradient-to-b from-slate-900/80 to-slate-950 p-16 text-center overflow-hidden">
-            {/* Background glow */}
-            <div className="absolute inset-0 pointer-events-none">
-              <div className="absolute -top-20 left-1/2 -translate-x-1/2 w-96 h-96 bg-cyan-500/5 rounded-full blur-[100px]" />
-              <div className="absolute -bottom-20 left-1/2 -translate-x-1/2 w-96 h-96 bg-violet-500/5 rounded-full blur-[100px]" />
-            </div>
-
-            <div className="relative z-10">
-              <h2 className="font-heading text-4xl sm:text-5xl font-bold text-white mb-6">
-                Ready to Advance
-                <br />
-                <span className="bg-gradient-to-r from-cyan-400 to-violet-400 bg-clip-text text-transparent">
-                  Neuroscience?
-                </span>
-              </h2>
-              <p className="text-slate-400 max-w-lg mx-auto mb-10 text-lg">
-                Upload your EEG recordings to the decentralized commons. Help
-                advance BCI research while maintaining full control over your data.
-              </p>
-              <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                <Link
-                  href="/upload"
-                  className="group inline-flex items-center gap-2 px-8 py-4 rounded-xl bg-gradient-to-r from-cyan-500 to-violet-500 hover:from-cyan-400 hover:to-violet-400 text-white font-semibold transition-all shadow-xl shadow-cyan-500/25 hover:shadow-cyan-500/40 hover:-translate-y-0.5"
-                >
-                  Start Uploading
-                  <svg className="w-4 h-4 transition-transform group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
-                  </svg>
-                </Link>
-                <Link
-                  href="/explore"
-                  className="inline-flex items-center gap-2 px-8 py-4 rounded-xl border border-slate-700 hover:border-slate-500 text-slate-300 hover:text-white font-medium transition-all hover:-translate-y-0.5"
-                >
-                  Browse Datasets
-                </Link>
-              </div>
-            </div>
+      <section className="border-b border-border">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-16 sm:py-24">
+          <div className="reveal max-w-2xl">
+            <h2 className="font-heading text-2xl sm:text-3xl font-semibold tracking-tight text-foreground mb-4">
+              Ready to Advance Neuroscience?
+            </h2>
+            <p className="text-sm text-muted-foreground mb-8 max-w-lg leading-relaxed">
+              Upload your EEG recordings to the decentralized commons. Help
+              advance BCI research while maintaining full control over your data.
+            </p>
+            <Button asChild>
+              <Link href="/upload" className="gap-2">
+                Start Uploading
+                <ArrowRight className="w-4 h-4" />
+              </Link>
+            </Button>
           </div>
         </div>
       </section>
 
       {/* ───── Footer ───── */}
-      <footer className="border-t border-slate-800/50">
-        <div className="max-w-7xl mx-auto px-6 py-12">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-8">
-            {/* Logo + tagline */}
-            <div className="flex flex-col items-center md:items-start gap-2">
-              <div className="flex items-center gap-2.5">
-                <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-cyan-400 to-violet-500 flex items-center justify-center">
-                  <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M9.75 3.104v5.714a2.25 2.25 0 01-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 014.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15.3M14.25 3.104c.251.023.501.05.75.082M19.8 15.3l-1.57.393A9.065 9.065 0 0112 15a9.065 9.065 0 00-6.23.693L5 14.5m14.8.8l1.402 1.402c1.232 1.232.65 3.318-1.067 3.611A48.309 48.309 0 0112 21c-2.773 0-5.491-.235-8.135-.687-1.718-.293-2.3-2.379-1.067-3.61L5 14.5" />
-                  </svg>
-                </div>
-                <span className="font-heading font-semibold text-white">NeuroVault</span>
+      <footer>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-10">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+            <div className="flex items-center gap-2.5">
+              <div className="w-6 h-6 rounded bg-primary flex items-center justify-center">
+                <Brain className="w-3 h-3 text-primary-foreground" />
               </div>
-              <p className="text-xs text-slate-600">
+              <span className="font-heading text-sm font-semibold text-foreground">
+                NeuroVault
+              </span>
+              <span className="text-xs text-muted-foreground ml-2">
                 Privacy-preserving neural data commons
-              </p>
+              </span>
             </div>
 
-            {/* Links */}
-            <div className="flex items-center gap-8">
+            <div className="flex items-center gap-6">
               <a
                 href="https://github.com/imanishbarnwal/NeuroVault"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-sm text-slate-500 hover:text-slate-300 transition-colors flex items-center gap-1.5"
+                className="text-sm text-muted-foreground hover:text-foreground transition-colors"
               >
-                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                  <path fillRule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clipRule="evenodd" />
-                </svg>
                 GitHub
               </a>
               <a
                 href="https://plgenesis.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-sm text-slate-500 hover:text-slate-300 transition-colors"
+                className="text-sm text-muted-foreground hover:text-foreground transition-colors"
               >
                 Hackathon
               </a>
-              <Link href="/explore" className="text-sm text-slate-500 hover:text-slate-300 transition-colors">
+              <Link
+                href="/explore"
+                className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+              >
                 Explore
               </Link>
             </div>
 
-            {/* Hackathon badge */}
-            <div className="text-center md:text-right">
-              <p className="text-xs text-slate-600">
-                Built for{" "}
-                <span className="text-slate-400">
-                  PL Genesis: Frontiers of Collaboration
-                </span>
-              </p>
-              <p className="text-xs text-slate-700 mt-1">
-                Neurotech Track &middot; Fresh Code
-              </p>
-            </div>
+            <p className="text-xs text-muted-foreground">
+              Built for PL Genesis: Frontiers of Collaboration
+            </p>
           </div>
         </div>
       </footer>

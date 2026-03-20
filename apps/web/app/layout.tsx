@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Space_Grotesk, Inter } from "next/font/google";
 import { Toaster } from "sonner";
+import { TooltipProvider } from "@/components/ui/tooltip";
+import { cn } from "@/lib/utils";
 import "@/styles/globals.css";
 
 const spaceGrotesk = Space_Grotesk({
@@ -27,20 +29,17 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`dark ${spaceGrotesk.variable} ${inter.variable}`}>
-      <body className="bg-slate-950 text-slate-100 antialiased font-[family-name:var(--font-body)]">
-        {children}
-        <Toaster
-          theme="dark"
-          position="bottom-right"
-          toastOptions={{
-            style: {
-              background: "rgb(15 23 42)",
-              border: "1px solid rgb(30 41 59)",
-              color: "rgb(226 232 240)",
-            },
-          }}
-        />
+    <html
+      lang="en"
+      className={cn(
+        "dark",
+        spaceGrotesk.variable,
+        inter.variable
+      )}
+    >
+      <body className="antialiased font-[family-name:var(--font-body)]">
+        <TooltipProvider>{children}</TooltipProvider>
+        <Toaster theme="dark" position="bottom-right" />
       </body>
     </html>
   );
