@@ -344,14 +344,14 @@ export default function Home() {
 
               <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
                 <Button asChild>
-                  <Link href="/upload" className="gap-2">
+                  <Link href="/upload">
                     <Upload className="w-4 h-4" />
                     Upload Data
                     <ArrowRight className="w-4 h-4" />
                   </Link>
                 </Button>
                 <Button variant="outline" asChild>
-                  <Link href="/explore" className="gap-2">
+                  <Link href="/explore">
                     <Search className="w-4 h-4" />
                     Explore Datasets
                   </Link>
@@ -502,7 +502,7 @@ export default function Home() {
               advance BCI research while maintaining full control over your data.
             </p>
             <Button asChild>
-              <Link href="/upload" className="gap-2">
+              <Link href="/upload">
                 Start Uploading
                 <ArrowRight className="w-4 h-4" />
               </Link>

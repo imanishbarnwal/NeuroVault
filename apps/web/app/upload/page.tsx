@@ -162,7 +162,7 @@ function StepIndicator({ current }: { current: WizardStep }) {
             {i > 0 && (
               <div
                 className={`w-8 h-px mx-1 transition-colors duration-300 ${
-                  isDone ? "bg-cyan-500" : "bg-slate-800"
+                  isDone ? "bg-primary" : "bg-muted"
                 }`}
               />
             )}
@@ -171,9 +171,9 @@ function StepIndicator({ current }: { current: WizardStep }) {
                 className={`
                   w-7 h-7 rounded-full flex items-center justify-center text-xs font-semibold
                   transition-all duration-300
-                  ${isActive ? "bg-cyan-500 text-slate-950 scale-110" : ""}
-                  ${isDone ? "bg-cyan-500/20 text-cyan-400 border border-cyan-500/40" : ""}
-                  ${!isActive && !isDone ? "bg-slate-800 text-slate-500 border border-slate-700" : ""}
+                  ${isActive ? "bg-primary text-primary-foreground scale-110" : ""}
+                  ${isDone ? "bg-primary/20 text-primary border border-primary/40" : ""}
+                  ${!isActive && !isDone ? "bg-muted text-[hsl(var(--nv-text-tertiary))] border border-border" : ""}
                 `}
               >
                 {isDone ? (
@@ -186,7 +186,7 @@ function StepIndicator({ current }: { current: WizardStep }) {
               </div>
               <span
                 className={`text-xs font-medium hidden sm:inline transition-colors duration-300 ${
-                  isActive ? "text-cyan-400" : isDone ? "text-slate-400" : "text-slate-600"
+                  isActive ? "text-primary" : isDone ? "text-muted-foreground" : "text-[hsl(var(--nv-text-tertiary))]"
                 }`}
               >
                 {label}
@@ -308,8 +308,8 @@ function StepSelectData({
   return (
     <div className="flex flex-col gap-6 max-w-2xl mx-auto">
       <div className="text-center">
-        <h2 className="text-xl font-semibold text-slate-100">Select EEG Data</h2>
-        <p className="text-sm text-slate-400 mt-1">
+        <h2 className="text-xl font-semibold text-foreground">Select EEG Data</h2>
+        <p className="text-sm text-muted-foreground mt-1">
           Upload an EDF+ file or choose from PhysioNet samples
         </p>
       </div>
@@ -324,8 +324,8 @@ function StepSelectData({
           relative rounded-xl border-2 border-dashed p-10 text-center cursor-pointer
           transition-all duration-200
           ${dragOver
-            ? "border-cyan-400 bg-cyan-500/5"
-            : "border-slate-700 bg-slate-900 hover:border-slate-600 hover:bg-slate-900/80"
+            ? "border-primary bg-primary/5"
+            : "border-border bg-card hover:border-border hover:bg-card"
           }
         `}
       >
@@ -340,20 +340,20 @@ function StepSelectData({
           {parsing ? (
             <>
               <Spinner />
-              <p className="text-sm text-cyan-400">Parsing EDF file...</p>
+              <p className="text-sm text-primary">Parsing EDF file...</p>
             </>
           ) : (
             <>
-              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-slate-500">
+              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-[hsl(var(--nv-text-tertiary))]">
                 <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
                 <polyline points="17 8 12 3 7 8" />
                 <line x1="12" y1="3" x2="12" y2="15" />
               </svg>
               <div>
-                <p className="text-sm text-slate-300">
-                  <span className="text-cyan-400 font-medium">Click to browse</span> or drag & drop
+                <p className="text-sm text-muted-foreground">
+                  <span className="text-primary font-medium">Click to browse</span> or drag & drop
                 </p>
-                <p className="text-xs text-slate-500 mt-1">EDF+ format (.edf)</p>
+                <p className="text-xs text-[hsl(var(--nv-text-tertiary))] mt-1">EDF+ format (.edf)</p>
               </div>
             </>
           )}
@@ -362,14 +362,14 @@ function StepSelectData({
 
       {/* Divider */}
       <div className="flex items-center gap-3">
-        <div className="flex-1 h-px bg-slate-800" />
-        <span className="text-xs text-slate-600 font-medium">OR</span>
-        <div className="flex-1 h-px bg-slate-800" />
+        <div className="flex-1 h-px bg-muted" />
+        <span className="text-xs text-[hsl(var(--nv-text-tertiary))] font-medium">OR</span>
+        <div className="flex-1 h-px bg-muted" />
       </div>
 
       {/* Sample datasets */}
       <div>
-        <h3 className="text-sm font-medium text-slate-300 mb-3">PhysioNet Samples</h3>
+        <h3 className="text-sm font-medium text-muted-foreground mb-3">PhysioNet Samples</h3>
         <div className="grid gap-2">
           {SAMPLE_DATASETS.map((sample) => (
             <button
@@ -380,29 +380,29 @@ function StepSelectData({
                 flex items-center gap-3 p-3 rounded-lg border text-left
                 transition-all duration-200
                 ${loadingSample === sample.id
-                  ? "border-cyan-500/40 bg-cyan-500/5"
-                  : "border-slate-800 bg-slate-900 hover:border-slate-700 hover:bg-slate-800/60"
+                  ? "border-primary/40 bg-primary/5"
+                  : "border-border bg-card hover:border-border hover:bg-muted/60"
                 }
                 disabled:opacity-50 disabled:cursor-not-allowed
               `}
             >
-              <div className="w-8 h-8 rounded-lg bg-violet-500/10 border border-violet-500/20 flex items-center justify-center flex-shrink-0">
+              <div className="w-8 h-8 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center flex-shrink-0">
                 {loadingSample === sample.id ? (
                   <Spinner size={14} />
                 ) : (
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-violet-400">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-primary">
                     <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
                     <polyline points="14 2 14 8 20 8" />
                   </svg>
                 )}
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm text-slate-200 font-medium">{sample.filename}</p>
-                <p className="text-xs text-slate-500 truncate">{sample.description}</p>
+                <p className="text-sm text-foreground font-medium">{sample.filename}</p>
+                <p className="text-xs text-[hsl(var(--nv-text-tertiary))] truncate">{sample.description}</p>
               </div>
               <div className="text-right flex-shrink-0">
-                <p className="text-xs text-slate-400">{sample.channels} ch</p>
-                <p className="text-xs text-slate-500">{formatDuration(sample.duration)}</p>
+                <p className="text-xs text-muted-foreground">{sample.channels} ch</p>
+                <p className="text-xs text-[hsl(var(--nv-text-tertiary))]">{formatDuration(sample.duration)}</p>
               </div>
             </button>
           ))}
