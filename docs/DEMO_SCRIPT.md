@@ -5,18 +5,28 @@
 
 ---
 
-## [0:00 - 0:15] HOOK
+## [0:00 - 0:05] TITLE CARD
+
+**Screen:** `slide-1-hook.html` (`/slides/slide-1-hook.html`)
+
+**Voiceover:** *(silence or ambient tone)*
+
+**Action:** Let the slide animate in — the headline *"Brain data is too sensitive to share... until now."* fades up. Hold for 5 seconds.
+
+---
+
+## [0:05 - 0:20] HOOK
 
 **Screen:** Landing page (animated EEG waveform background)
 
 **Voiceover:**
 > "Brain data is the most sensitive data on earth. Today, sharing it means exposing it. NeuroVault changes that."
 
-**Action:** Slow scroll down the landing page, showing the hero section and tagline.
+**Action:** Cut from slide-1 to the landing page. Slow scroll down showing the hero section and tagline.
 
 ---
 
-## [0:15 - 0:30] PROBLEM
+## [0:20 - 0:35] PROBLEM
 
 **Screen:** Slide (`slide-2-problem.html`) or text overlay
 
@@ -27,7 +37,7 @@
 
 ---
 
-## [0:30 - 1:00] UPLOAD DEMO
+## [0:35 - 1:05] UPLOAD DEMO
 
 **Screen:** Live app - Upload page (`/upload`)
 
@@ -54,7 +64,7 @@
 
 ---
 
-## [1:00 - 1:30] EXPLORE & ACCESS DEMO
+## [1:05 - 1:35] EXPLORE & ACCESS DEMO
 
 **Screen:** Live app - Explore page (`/explore`)
 
@@ -81,7 +91,7 @@
 
 ---
 
-## [1:30 - 2:00] DASHBOARD & IMPACT
+## [1:35 - 2:05] DASHBOARD & IMPACT
 
 **Screen:** Live app - Dashboard (`/dashboard`) then Profile (`/profile`)
 
@@ -101,7 +111,7 @@
 
 ---
 
-## [2:00 - 2:30] ARCHITECTURE
+## [2:05 - 2:35] ARCHITECTURE
 
 **Screen:** Architecture diagram (`slide-3-architecture.html` or `/architecture.svg`)
 
@@ -121,7 +131,7 @@
 
 ---
 
-## [2:30 - 2:50] VISION
+## [2:35 - 2:50] VISION
 
 **Screen:** Landing page or closing slide (`slide-4-close.html`)
 

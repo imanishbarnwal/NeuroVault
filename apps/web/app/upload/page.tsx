@@ -411,8 +411,8 @@ function StepSelectData({
 
       {/* Error */}
       {error && (
-        <div className="rounded-lg bg-red-500/10 border border-red-500/20 px-4 py-3">
-          <p className="text-sm text-red-400">{error}</p>
+        <div className="rounded-lg bg-destructive/10 border border-destructive/20 px-4 py-3">
+          <p className="text-sm text-destructive">{error}</p>
         </div>
       )}
     </div>
@@ -451,8 +451,8 @@ function StepReviewUpload({
   return (
     <div className="flex flex-col gap-6 max-w-2xl mx-auto">
       <div className="text-center">
-        <h2 className="text-xl font-semibold text-slate-100">Review & Upload</h2>
-        <p className="text-sm text-slate-400 mt-1">
+        <h2 className="text-xl font-semibold text-foreground">Review & Upload</h2>
+        <p className="text-sm text-muted-foreground mt-1">
           Verify your dataset details before uploading to the decentralized network
         </p>
       </div>
@@ -460,9 +460,9 @@ function StepReviewUpload({
       {/* Summary cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Dataset summary */}
-        <div className="rounded-xl border border-slate-800 bg-slate-900 p-4 flex flex-col gap-3">
-          <h3 className="text-sm font-semibold text-slate-300 flex items-center gap-2">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-cyan-400">
+        <div className="rounded-xl border border-border bg-card p-4 flex flex-col gap-3">
+          <h3 className="text-sm font-semibold text-muted-foreground flex items-center gap-2">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-primary">
               <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
               <polyline points="14 2 14 8 20 8" />
             </svg>
@@ -470,28 +470,28 @@ function StepReviewUpload({
           </h3>
           <div className="grid grid-cols-2 gap-y-2 gap-x-4 text-xs">
             <div>
-              <span className="text-slate-500">File</span>
-              <p className="text-slate-200 font-medium truncate">{parsed.filename}</p>
+              <span className="text-[hsl(var(--nv-text-tertiary))]">File</span>
+              <p className="text-foreground font-medium truncate">{parsed.filename}</p>
             </div>
             <div>
-              <span className="text-slate-500">Size</span>
-              <p className="text-slate-200 font-medium">{formatBytes(parsed.fileSize)}</p>
+              <span className="text-[hsl(var(--nv-text-tertiary))]">Size</span>
+              <p className="text-foreground font-medium">{formatBytes(parsed.fileSize)}</p>
             </div>
             <div>
-              <span className="text-slate-500">Channels</span>
-              <p className="text-slate-200 font-medium">{parsed.metadata.channels}</p>
+              <span className="text-[hsl(var(--nv-text-tertiary))]">Channels</span>
+              <p className="text-foreground font-medium">{parsed.metadata.channels}</p>
             </div>
             <div>
-              <span className="text-slate-500">Sample Rate</span>
-              <p className="text-slate-200 font-medium">{parsed.sampleRate} Hz</p>
+              <span className="text-[hsl(var(--nv-text-tertiary))]">Sample Rate</span>
+              <p className="text-foreground font-medium">{parsed.sampleRate} Hz</p>
             </div>
             <div>
-              <span className="text-slate-500">Duration</span>
-              <p className="text-slate-200 font-medium">{formatDuration(parsed.duration)}</p>
+              <span className="text-[hsl(var(--nv-text-tertiary))]">Duration</span>
+              <p className="text-foreground font-medium">{formatDuration(parsed.duration)}</p>
             </div>
             <div>
-              <span className="text-slate-500">Task</span>
-              <p className="text-slate-200 font-medium capitalize">
+              <span className="text-[hsl(var(--nv-text-tertiary))]">Task</span>
+              <p className="text-foreground font-medium capitalize">
                 {parsed.metadata.task.replace(/-/g, " ")}
               </p>
             </div>
@@ -499,9 +499,9 @@ function StepReviewUpload({
         </div>
 
         {/* Access summary */}
-        <div className="rounded-xl border border-slate-800 bg-slate-900 p-4 flex flex-col gap-3">
-          <h3 className="text-sm font-semibold text-slate-300 flex items-center gap-2">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-violet-400">
+        <div className="rounded-xl border border-border bg-card p-4 flex flex-col gap-3">
+          <h3 className="text-sm font-semibold text-muted-foreground flex items-center gap-2">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-primary">
               <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
               <path d="M7 11V7a5 5 0 0110 0v4" />
             </svg>
@@ -509,30 +509,30 @@ function StepReviewUpload({
           </h3>
           <div className="flex flex-col gap-2 text-xs">
             <div>
-              <span className="text-slate-500">Access Type</span>
-              <p className="text-slate-200 font-medium">{accessLabels[accessType]}</p>
+              <span className="text-[hsl(var(--nv-text-tertiary))]">Access Type</span>
+              <p className="text-foreground font-medium">{accessLabels[accessType]}</p>
             </div>
             {accessType === "restricted" && credentials && (
               <div>
-                <span className="text-slate-500">Required Credentials</span>
-                <p className="text-slate-200 font-medium">{credentials}</p>
+                <span className="text-[hsl(var(--nv-text-tertiary))]">Required Credentials</span>
+                <p className="text-foreground font-medium">{credentials}</p>
               </div>
             )}
             <div>
-              <span className="text-slate-500">Encryption</span>
-              <p className="text-slate-200 font-medium">Lit Protocol (AES-256)</p>
+              <span className="text-[hsl(var(--nv-text-tertiary))]">Encryption</span>
+              <p className="text-foreground font-medium">Lit Protocol (AES-256)</p>
             </div>
             <div>
-              <span className="text-slate-500">Storage</span>
-              <p className="text-slate-200 font-medium">Storacha + Filecoin</p>
+              <span className="text-[hsl(var(--nv-text-tertiary))]">Storage</span>
+              <p className="text-foreground font-medium">Storacha + Filecoin</p>
             </div>
           </div>
         </div>
       </div>
 
       {/* Waveform preview */}
-      <div className="rounded-xl border border-slate-800 bg-slate-900 p-4">
-        <h3 className="text-sm font-semibold text-slate-300 mb-3">Signal Preview</h3>
+      <div className="rounded-xl border border-border bg-card p-4">
+        <h3 className="text-sm font-semibold text-muted-foreground mb-3">Signal Preview</h3>
         <EEGWaveformViewer
           signals={parsed.signals}
           channelNames={parsed.channelNames}
@@ -553,7 +553,7 @@ function StepReviewUpload({
         <div className="flex items-center justify-between pt-2">
           <button
             onClick={onBack}
-            className="px-4 py-2 text-sm text-slate-400 hover:text-slate-200 transition-colors"
+            className="px-4 py-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
           >
             Back
           </button>
@@ -561,10 +561,10 @@ function StepReviewUpload({
             onClick={onUpload}
             disabled={uploading}
             className="group relative px-8 py-3 text-sm font-semibold rounded-lg
-                       bg-gradient-to-r from-cyan-500 to-cyan-400 text-slate-950
-                       hover:from-cyan-400 hover:to-cyan-300
+                       bg-primary text-primary-foreground
+                       hover:bg-primary/90
                        disabled:opacity-50 disabled:cursor-not-allowed
-                       transition-all duration-200 shadow-lg shadow-cyan-500/20"
+                       transition-all duration-200 shadow-lg shadow-primary/20"
           >
             <span className="flex items-center gap-2">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -606,20 +606,20 @@ function StepRegisterOnChain({
   return (
     <div className="flex flex-col gap-6 max-w-2xl mx-auto">
       <div className="text-center">
-        <h2 className="text-xl font-semibold text-slate-100">Register On-Chain</h2>
-        <p className="text-sm text-slate-400 mt-1">
+        <h2 className="text-xl font-semibold text-foreground">Register On-Chain</h2>
+        <p className="text-sm text-muted-foreground mt-1">
           Register your dataset on the Flow blockchain for discovery and access licensing
         </p>
       </div>
 
       {isFlowDemo && (
-        <div className="rounded-lg bg-amber-500/10 border border-amber-500/20 px-4 py-3 flex items-start gap-3">
-          <svg className="w-5 h-5 text-amber-400 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+        <div className="rounded-lg bg-nv-warning/10 border border-nv-warning/20 px-4 py-3 flex items-start gap-3">
+          <svg className="w-5 h-5 text-nv-warning flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
           </svg>
           <div>
-            <p className="text-sm text-amber-200 font-medium">Demo Mode</p>
-            <p className="text-xs text-amber-300/70 mt-0.5">
+            <p className="text-sm text-nv-warning font-medium">Demo Mode</p>
+            <p className="text-xs text-nv-warning/70 mt-0.5">
               Flow contract not configured. Registration will be simulated.
             </p>
           </div>
@@ -627,36 +627,36 @@ function StepRegisterOnChain({
       )}
 
       {/* Upload result summary */}
-      <div className="rounded-xl border border-slate-800 bg-slate-900 p-4">
-        <h3 className="text-sm font-semibold text-slate-300 mb-3 flex items-center gap-2">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-emerald-400">
+      <div className="rounded-xl border border-border bg-card p-4">
+        <h3 className="text-sm font-semibold text-muted-foreground mb-3 flex items-center gap-2">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-nv-success">
             <path d="M20 6L9 17l-5-5" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
           Uploaded to Filecoin
         </h3>
         <div className="grid grid-cols-1 gap-2 text-xs">
           <div>
-            <span className="text-slate-500">Data CID</span>
-            <p className="text-cyan-400 font-mono truncate">{uploadResult.dataCID}</p>
+            <span className="text-[hsl(var(--nv-text-tertiary))]">Data CID</span>
+            <p className="text-primary font-mono truncate">{uploadResult.dataCID}</p>
           </div>
           <div>
-            <span className="text-slate-500">Metadata CID</span>
-            <p className="text-violet-400 font-mono truncate">{uploadResult.metadataCID}</p>
+            <span className="text-[hsl(var(--nv-text-tertiary))]">Metadata CID</span>
+            <p className="text-primary font-mono truncate">{uploadResult.metadataCID}</p>
           </div>
         </div>
       </div>
 
       {/* Price input */}
-      <div className="rounded-xl border border-slate-800 bg-slate-900 p-4">
-        <h3 className="text-sm font-semibold text-slate-300 mb-3 flex items-center gap-2">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-cyan-400">
+      <div className="rounded-xl border border-border bg-card p-4">
+        <h3 className="text-sm font-semibold text-muted-foreground mb-3 flex items-center gap-2">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-primary">
             <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v12m-3-2.818l.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
           Access Pricing
         </h3>
         <div className="flex items-center gap-3">
           <div className="flex-1">
-            <label className="text-xs text-slate-500 mb-1 block">Price per access (FLOW)</label>
+            <label className="text-xs text-[hsl(var(--nv-text-tertiary))] mb-1 block">Price per access (FLOW)</label>
             <div className="relative">
               <input
                 type="number"
@@ -664,13 +664,13 @@ function StepRegisterOnChain({
                 min="0"
                 value={price}
                 onChange={(e) => setPrice(e.target.value)}
-                className="w-full px-3 py-2 rounded-lg bg-slate-950 border border-slate-700 text-sm text-white
-                           focus:outline-none focus:border-cyan-500/50 focus:ring-1 focus:ring-cyan-500/20"
+                className="w-full px-3 py-2 rounded-lg bg-background border border-border text-sm text-white
+                           focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/20"
               />
-              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-slate-500">FLOW</span>
+              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-[hsl(var(--nv-text-tertiary))]">FLOW</span>
             </div>
           </div>
-          <div className="text-xs text-slate-500 pt-5">
+          <div className="text-xs text-[hsl(var(--nv-text-tertiary))] pt-5">
             {price === "0" || price === "" ? "Free access" : `${price} FLOW per 30-day license`}
           </div>
         </div>
@@ -678,15 +678,15 @@ function StepRegisterOnChain({
 
       {/* Wallet connection */}
       {!wallet.isConnected && (
-        <div className="rounded-xl border border-slate-800 bg-slate-900 p-4 flex items-center justify-between">
+        <div className="rounded-xl border border-border bg-card p-4 flex items-center justify-between">
           <div>
-            <p className="text-sm font-medium text-slate-300">Wallet Required</p>
-            <p className="text-xs text-slate-500 mt-0.5">Connect your wallet to register on Flow</p>
+            <p className="text-sm font-medium text-muted-foreground">Wallet Required</p>
+            <p className="text-xs text-[hsl(var(--nv-text-tertiary))] mt-0.5">Connect your wallet to register on Flow</p>
           </div>
           <button
             onClick={onConnect}
-            className="px-4 py-2 text-sm rounded-lg border border-cyan-500/40 text-cyan-400
-                       hover:bg-cyan-500/10 transition-colors"
+            className="px-4 py-2 text-sm rounded-lg border border-primary/40 text-primary
+                       hover:bg-primary/10 transition-colors"
           >
             Connect Wallet
           </button>
@@ -695,8 +695,8 @@ function StepRegisterOnChain({
 
       {/* Error */}
       {error && (
-        <div className="rounded-lg bg-red-500/10 border border-red-500/20 px-4 py-3">
-          <p className="text-sm text-red-400">{error}</p>
+        <div className="rounded-lg bg-destructive/10 border border-destructive/20 px-4 py-3">
+          <p className="text-sm text-destructive">{error}</p>
         </div>
       )}
 
@@ -706,10 +706,10 @@ function StepRegisterOnChain({
           onClick={() => onRegister(price || "0")}
           disabled={registering || (!wallet.isConnected && !isFlowDemo)}
           className="group relative px-8 py-3 text-sm font-semibold rounded-lg
-                     bg-gradient-to-r from-violet-500 to-cyan-500 text-white
-                     hover:from-violet-400 hover:to-cyan-400
+                     bg-primary text-primary-foreground
+                     hover:bg-primary/90
                      disabled:opacity-50 disabled:cursor-not-allowed
-                     transition-all duration-200 shadow-lg shadow-violet-500/20"
+                     transition-all duration-200 shadow-lg shadow-primary/20"
         >
           <span className="flex items-center gap-2">
             {registering ? (
@@ -761,7 +761,7 @@ function StepSuccess({
       {/* Animated check */}
       <div
         className={`
-          w-20 h-20 rounded-full bg-emerald-500/10 border-2 border-emerald-500/30
+          w-20 h-20 rounded-full bg-nv-success/10 border-2 border-nv-success/30
           flex items-center justify-center transition-all duration-500
           ${showCheck ? "scale-100 opacity-100" : "scale-50 opacity-0"}
         `}
@@ -775,7 +775,7 @@ function StepSuccess({
           strokeWidth="2.5"
           strokeLinecap="round"
           strokeLinejoin="round"
-          className="text-emerald-400"
+          className="text-nv-success"
         >
           <path
             d="M20 6L9 17l-5-5"
@@ -790,40 +790,40 @@ function StepSuccess({
       </div>
 
       <div>
-        <h2 className="text-2xl font-bold text-slate-100">Upload Complete</h2>
-        <p className="text-sm text-slate-400 mt-2">
+        <h2 className="text-2xl font-bold text-foreground">Upload Complete</h2>
+        <p className="text-sm text-muted-foreground mt-2">
           Your data is stored on Filecoin and registered on Flow blockchain.
         </p>
       </div>
 
       {/* CID display */}
-      <div className="w-full rounded-xl border border-slate-800 bg-slate-900 p-4 flex flex-col gap-2">
-        <span className="text-[10px] text-slate-500 uppercase tracking-wider font-medium">
+      <div className="w-full rounded-xl border border-border bg-card p-4 flex flex-col gap-2">
+        <span className="text-[10px] text-[hsl(var(--nv-text-tertiary))] uppercase tracking-wider font-medium">
           Content Identifier (CID)
         </span>
-        <code className="text-sm text-cyan-400 font-mono break-all leading-relaxed">
+        <code className="text-sm text-primary font-mono break-all leading-relaxed">
           {result.dataCID}
         </code>
       </div>
 
       {/* Metadata CID */}
-      <div className="w-full rounded-xl border border-slate-800 bg-slate-900 p-4 flex flex-col gap-2">
-        <span className="text-[10px] text-slate-500 uppercase tracking-wider font-medium">
+      <div className="w-full rounded-xl border border-border bg-card p-4 flex flex-col gap-2">
+        <span className="text-[10px] text-[hsl(var(--nv-text-tertiary))] uppercase tracking-wider font-medium">
           Metadata CID
         </span>
-        <code className="text-xs text-violet-400 font-mono break-all leading-relaxed">
+        <code className="text-xs text-primary font-mono break-all leading-relaxed">
           {result.metadataCID}
         </code>
       </div>
 
       {/* On-chain registration result */}
       {onChainResult && (
-        <div className="w-full rounded-xl border border-emerald-500/30 bg-emerald-500/5 p-4 flex flex-col gap-2">
-          <span className="text-[10px] text-emerald-400 uppercase tracking-wider font-medium">
+        <div className="w-full rounded-xl border border-nv-success/30 bg-nv-success/5 p-4 flex flex-col gap-2">
+          <span className="text-[10px] text-nv-success uppercase tracking-wider font-medium">
             Flow Transaction
           </span>
           <div className="flex items-center justify-between">
-            <code className="text-sm text-emerald-300 font-mono">
+            <code className="text-sm text-nv-success font-mono">
               {truncateHash(onChainResult.txHash)}
             </code>
             {explorerUrl && (
@@ -831,7 +831,7 @@ function StepSuccess({
                 href={explorerUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-xs text-emerald-400 hover:text-emerald-300 transition-colors flex items-center gap-1"
+                className="text-xs text-nv-success hover:text-nv-success transition-colors flex items-center gap-1"
               >
                 View on Explorer
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -842,7 +842,7 @@ function StepSuccess({
               </a>
             )}
           </div>
-          <p className="text-xs text-emerald-400/70">
+          <p className="text-xs text-nv-success/70">
             On-chain ID: #{onChainResult.id}
           </p>
         </div>
@@ -853,24 +853,24 @@ function StepSuccess({
         <button
           onClick={onReset}
           className="flex-1 px-4 py-2.5 text-sm font-medium rounded-lg
-                     border border-slate-700 text-slate-300
-                     hover:bg-slate-800 hover:border-slate-600 transition-colors"
+                     border border-border text-muted-foreground
+                     hover:bg-muted hover:border-border transition-colors"
         >
           Upload Another
         </button>
         <Link
           href="/dashboard"
           className="flex-1 px-4 py-2.5 text-sm font-medium rounded-lg text-center
-                     border border-slate-700 text-slate-300
-                     hover:bg-slate-800 hover:border-slate-600 transition-colors"
+                     border border-border text-muted-foreground
+                     hover:bg-muted hover:border-border transition-colors"
         >
           View Dashboard
         </Link>
         <Link
           href="/explore"
           className="flex-1 px-4 py-2.5 text-sm font-medium rounded-lg text-center
-                     bg-cyan-500 text-slate-950
-                     hover:bg-cyan-400 transition-colors"
+                     bg-primary text-primary-foreground
+                     hover:bg-primary/90 transition-colors"
         >
           Explore Datasets
         </Link>
@@ -890,7 +890,7 @@ function Spinner({ size = 20 }: { size?: number }) {
       height={size}
       viewBox="0 0 24 24"
       fill="none"
-      className="animate-spin text-cyan-400"
+      className="animate-spin text-primary"
     >
       <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" strokeOpacity="0.2" />
       <path
@@ -1091,7 +1091,7 @@ export default function UploadPage() {
     null;
 
   return (
-    <main className="min-h-screen bg-slate-950">
+    <main className="min-h-screen bg-background">
       <Navbar
         wallet={wallet}
         onConnect={connectWallet}
@@ -1101,7 +1101,7 @@ export default function UploadPage() {
       <div className="max-w-4xl mx-auto px-4 py-8">
         {/* Header */}
         <div className="text-center mb-6">
-          <h1 className="text-lg font-semibold text-slate-100">Upload Dataset</h1>
+          <h1 className="text-lg font-semibold text-foreground">Upload Dataset</h1>
         </div>
 
         {/* Step indicator */}
@@ -1134,25 +1134,25 @@ export default function UploadPage() {
                 isDemo={litIsDemo}
               />
               {(accessType !== "public" || accessConditions.length > 0) && (
-                <div className="max-w-lg mx-auto mt-4 rounded-xl border border-slate-800 bg-slate-900/50 p-4">
-                  <h4 className="text-xs font-semibold text-slate-400 mb-2">
+                <div className="max-w-lg mx-auto mt-4 rounded-xl border border-border bg-card p-4">
+                  <h4 className="text-xs font-semibold text-muted-foreground mb-2">
                     Access Summary
                   </h4>
-                  <p className="text-sm text-slate-200">
+                  <p className="text-sm text-foreground">
                     This dataset will be decryptable by:{" "}
                     {describeConditions(accessConditions, accessType)
                       .map((d, i) =>
                         d === "AND" || d === "OR" ? (
                           <span
                             key={i}
-                            className="text-xs text-cyan-400 font-semibold mx-1"
+                            className="text-xs text-primary font-semibold mx-1"
                           >
                             {d}
                           </span>
                         ) : (
                           <span
                             key={i}
-                            className="font-mono text-cyan-300 text-xs"
+                            className="font-mono text-primary text-xs"
                           >
                             [{d}]
                           </span>
@@ -1168,14 +1168,14 @@ export default function UploadPage() {
             <>
               {/* World ID verification gate */}
               {!worldIDVerified && (
-                <div className="max-w-2xl mx-auto mb-4 rounded-xl border border-amber-500/20 bg-amber-500/5 p-4 flex items-center justify-between">
+                <div className="max-w-2xl mx-auto mb-4 rounded-xl border border-nv-warning/20 bg-nv-warning/5 p-4 flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <svg className="w-5 h-5 text-amber-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <svg className="w-5 h-5 text-nv-warning flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126z" />
                     </svg>
                     <div>
-                      <p className="text-sm text-amber-200 font-medium">Verify your humanity</p>
-                      <p className="text-xs text-amber-300/60 mt-0.5">Prove you are a unique human to upload data (prevents sybil attacks)</p>
+                      <p className="text-sm text-nv-warning font-medium">Verify your humanity</p>
+                      <p className="text-xs text-nv-warning/60 mt-0.5">Prove you are a unique human to upload data (prevents sybil attacks)</p>
                     </div>
                   </div>
                   <WorldIDButton />

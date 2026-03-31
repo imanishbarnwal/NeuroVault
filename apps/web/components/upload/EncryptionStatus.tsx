@@ -34,7 +34,7 @@ export default function EncryptionStatus({
           strokeWidth="2"
           strokeLinecap="round"
           strokeLinejoin="round"
-          className="text-violet-400 flex-shrink-0"
+          className="text-primary flex-shrink-0"
         >
           <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
           <path d="M7 11V7a5 5 0 0110 0v4" />
@@ -49,7 +49,7 @@ export default function EncryptionStatus({
           strokeWidth="1.5"
           strokeLinecap="round"
           strokeLinejoin="round"
-          className="text-emerald-400 flex-shrink-0"
+          className="text-nv-success flex-shrink-0"
         >
           <circle cx="12" cy="12" r="10" />
           <line x1="2" y1="12" x2="22" y2="12" />
@@ -58,22 +58,22 @@ export default function EncryptionStatus({
       )}
 
       {/* Condition descriptions */}
-      <span className="text-[11px] text-slate-400 truncate">
+      <span className="text-[11px] text-muted-foreground truncate">
         {descriptions.filter((d) => d !== "AND" && d !== "OR").join(", ") ||
           (isEncrypted ? "Encrypted" : "Public")}
       </span>
 
       {/* Badge */}
       {isDemo ? (
-        <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-amber-500/15 text-amber-400 flex-shrink-0">
+        <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-nv-warning/10 text-nv-warning flex-shrink-0">
           Demo
         </span>
       ) : isEncrypted ? (
-        <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-violet-500/15 text-violet-400 flex-shrink-0">
+        <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-primary/10 text-primary flex-shrink-0">
           Lit Protocol
         </span>
       ) : (
-        <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 flex-shrink-0">
+        <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-nv-success/10 text-nv-success flex-shrink-0">
           Public
         </span>
       )}

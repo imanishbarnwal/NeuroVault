@@ -210,23 +210,23 @@ export default function AccessConditionBuilder({
   return (
     <div className="flex flex-col gap-6 max-w-lg mx-auto">
       <div className="text-center">
-        <h2 className="text-xl font-semibold text-slate-100">
+        <h2 className="text-xl font-semibold text-foreground">
           Access Conditions
         </h2>
-        <p className="text-sm text-slate-400 mt-1">
+        <p className="text-sm text-muted-foreground mt-1">
           Control who can decrypt and access your data
         </p>
       </div>
 
       {/* Demo mode banner */}
       {isDemo && (
-        <div className="rounded-lg bg-amber-500/10 border border-amber-500/20 px-4 py-3 flex gap-2">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-amber-400 flex-shrink-0 mt-0.5">
+        <div className="rounded-lg bg-nv-warning/10 border border-nv-warning/20 px-4 py-3 flex gap-2">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-nv-warning flex-shrink-0 mt-0.5">
             <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
             <line x1="12" y1="9" x2="12" y2="13" />
             <line x1="12" y1="17" x2="12.01" y2="17" />
           </svg>
-          <p className="text-xs text-amber-300">
+          <p className="text-xs text-nv-warning">
             <span className="font-medium">Demo mode</span> — Lit Protocol is
             unavailable. Encryption will use a local Web Crypto fallback (not
             production-grade access control).
@@ -245,16 +245,16 @@ export default function AccessConditionBuilder({
               transition-all duration-200
               ${
                 accessType === opt.value
-                  ? "border-cyan-500/60 bg-cyan-500/5"
-                  : "border-slate-800 bg-slate-900 hover:border-slate-700"
+                  ? "border-primary/60 bg-primary/5"
+                  : "border-border bg-card hover:border-border"
               }
             `}
           >
             <div
               className={`w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 transition-colors ${
                 accessType === opt.value
-                  ? "bg-cyan-500/15 text-cyan-400"
-                  : "bg-slate-800 text-slate-500"
+                  ? "bg-primary/10 text-primary"
+                  : "bg-muted text-[hsl(var(--nv-text-tertiary))]"
               }`}
             >
               {opt.icon}
@@ -263,23 +263,23 @@ export default function AccessConditionBuilder({
               <p
                 className={`text-sm font-medium ${
                   accessType === opt.value
-                    ? "text-slate-100"
-                    : "text-slate-300"
+                    ? "text-foreground"
+                    : "text-muted-foreground"
                 }`}
               >
                 {opt.label}
               </p>
-              <p className="text-xs text-slate-500">{opt.desc}</p>
+              <p className="text-xs text-[hsl(var(--nv-text-tertiary))]">{opt.desc}</p>
             </div>
             <div
               className={`w-4 h-4 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-all ${
                 accessType === opt.value
-                  ? "border-cyan-400"
-                  : "border-slate-700"
+                  ? "border-primary"
+                  : "border-border"
               }`}
             >
               {accessType === opt.value && (
-                <div className="w-2 h-2 rounded-full bg-cyan-400" />
+                <div className="w-2 h-2 rounded-full bg-primary" />
               )}
             </div>
           </button>
@@ -291,7 +291,7 @@ export default function AccessConditionBuilder({
         <div className="flex flex-col gap-4 animate-fadeIn">
           {/* Add condition buttons */}
           <div>
-            <h3 className="text-sm font-medium text-slate-300 mb-2">
+            <h3 className="text-sm font-medium text-muted-foreground mb-2">
               Add Access Conditions
             </h3>
             <div className="grid grid-cols-2 gap-2">
@@ -299,13 +299,13 @@ export default function AccessConditionBuilder({
                 <button
                   key={ct.value}
                   onClick={() => addCondition(ct.value)}
-                  className="flex flex-col gap-0.5 p-3 rounded-lg border border-slate-800 bg-slate-900
-                             hover:border-slate-700 hover:bg-slate-800/60 transition-all text-left"
+                  className="flex flex-col gap-0.5 p-3 rounded-lg border border-border bg-card
+                             hover:border-border hover:bg-muted transition-all text-left"
                 >
-                  <span className="text-xs font-medium text-slate-200">
+                  <span className="text-xs font-medium text-foreground">
                     {ct.label}
                   </span>
-                  <span className="text-[10px] text-slate-500">{ct.desc}</span>
+                  <span className="text-[10px] text-[hsl(var(--nv-text-tertiary))]">{ct.desc}</span>
                 </button>
               ))}
             </div>
@@ -314,13 +314,13 @@ export default function AccessConditionBuilder({
           {/* Combinator toggle */}
           {conditions.length > 1 && (
             <div className="flex items-center justify-center gap-2">
-              <span className="text-xs text-slate-500">Combine with:</span>
+              <span className="text-xs text-[hsl(var(--nv-text-tertiary))]">Combine with:</span>
               <button
                 onClick={toggleCombinator}
                 className={`px-3 py-1 rounded-full text-xs font-semibold transition-colors ${
                   combinator === "and"
-                    ? "bg-cyan-500/15 text-cyan-400 border border-cyan-500/30"
-                    : "bg-violet-500/15 text-violet-400 border border-violet-500/30"
+                    ? "bg-primary/10 text-primary border border-primary/30"
+                    : "bg-primary/10 text-primary border border-primary/30"
                 }`}
               >
                 {combinator.toUpperCase()}
@@ -339,8 +339,8 @@ export default function AccessConditionBuilder({
                       <span
                         className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
                           combinator === "and"
-                            ? "bg-cyan-500/15 text-cyan-400"
-                            : "bg-violet-500/15 text-violet-400"
+                            ? "bg-primary/10 text-primary"
+                            : "bg-primary/10 text-primary"
                         }`}
                       >
                         {combinator.toUpperCase()}
@@ -362,7 +362,7 @@ export default function AccessConditionBuilder({
             <div>
               <button
                 onClick={() => setShowPreview(!showPreview)}
-                className="text-xs text-slate-500 hover:text-slate-300 transition-colors flex items-center gap-1"
+                className="text-xs text-[hsl(var(--nv-text-tertiary))] hover:text-muted-foreground transition-colors flex items-center gap-1"
               >
                 <svg
                   width="12"
@@ -378,7 +378,7 @@ export default function AccessConditionBuilder({
                 {showPreview ? "Hide" : "Show"} JSON preview
               </button>
               {showPreview && (
-                <pre className="mt-2 p-3 rounded-lg bg-slate-950 border border-slate-800 text-[10px] text-slate-400 font-mono overflow-x-auto max-h-48 overflow-y-auto">
+                <pre className="mt-2 p-3 rounded-lg bg-background border border-border text-[10px] text-muted-foreground font-mono overflow-x-auto max-h-48 overflow-y-auto">
                   {previewJson}
                 </pre>
               )}
@@ -388,7 +388,7 @@ export default function AccessConditionBuilder({
       )}
 
       {/* Encryption notice */}
-      <div className="rounded-xl bg-violet-500/5 border border-violet-500/20 p-4 flex gap-3">
+      <div className="rounded-xl bg-primary/5 border border-primary/20 p-4 flex gap-3">
         <svg
           width="20"
           height="20"
@@ -398,16 +398,16 @@ export default function AccessConditionBuilder({
           strokeWidth="1.5"
           strokeLinecap="round"
           strokeLinejoin="round"
-          className="text-violet-400 flex-shrink-0 mt-0.5"
+          className="text-primary flex-shrink-0 mt-0.5"
         >
           <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
           <path d="M7 11V7a5 5 0 0110 0v4" />
         </svg>
         <div>
-          <p className="text-sm text-violet-300 font-medium">
+          <p className="text-sm text-primary font-medium">
             End-to-end encryption
           </p>
-          <p className="text-xs text-slate-400 mt-1">
+          <p className="text-xs text-muted-foreground mt-1">
             {accessType === "public"
               ? "Public datasets are uploaded without encryption for open access."
               : isDemo
@@ -421,14 +421,14 @@ export default function AccessConditionBuilder({
       <div className="flex items-center justify-between pt-2">
         <button
           onClick={onBack}
-          className="px-4 py-2 text-sm text-slate-400 hover:text-slate-200 transition-colors"
+          className="px-4 py-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
         >
           Back
         </button>
         <button
           onClick={onNext}
-          className="px-6 py-2.5 text-sm font-medium rounded-lg bg-cyan-500 text-slate-950
-                     hover:bg-cyan-400 transition-colors"
+          className="px-6 py-2.5 text-sm font-medium rounded-lg bg-primary text-primary-foreground
+                     hover:bg-primary/90 transition-colors"
         >
           Continue
         </button>
@@ -457,14 +457,14 @@ function ConditionCard({
   };
 
   return (
-    <div className="rounded-xl border border-slate-800 bg-slate-900 p-4">
+    <div className="rounded-xl border border-border bg-card p-4">
       <div className="flex items-center justify-between mb-3">
-        <span className="text-xs font-semibold text-slate-300">
+        <span className="text-xs font-semibold text-muted-foreground">
           {labels[entry.type]}
         </span>
         <button
           onClick={onRemove}
-          className="text-slate-600 hover:text-red-400 transition-colors"
+          className="text-[hsl(var(--nv-text-tertiary))] hover:text-destructive transition-colors"
         >
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <line x1="18" y1="6" x2="6" y2="18" />
@@ -477,14 +477,14 @@ function ConditionCard({
         {/* Chain selector (for wallet, nft, token) */}
         {entry.type !== "timelock" && entry.type !== "worldid" && (
           <div>
-            <label className="text-[10px] text-slate-500 mb-1 block">
+            <label className="text-[10px] text-[hsl(var(--nv-text-tertiary))] mb-1 block">
               Chain
             </label>
             <select
               value={entry.chain || "ethereum"}
               onChange={(e) => onUpdate({ chain: e.target.value })}
-              className="w-full px-3 py-1.5 rounded-lg bg-slate-950 border border-slate-700
-                         text-xs text-slate-200 focus:outline-none focus:border-cyan-500/50
+              className="w-full px-3 py-1.5 rounded-lg bg-background border border-border
+                         text-xs text-foreground focus:outline-none focus:border-primary/50
                          transition-colors"
             >
               {CHAINS.map((ch) => (
@@ -499,7 +499,7 @@ function ConditionCard({
         {/* Wallet address input */}
         {entry.type === "wallet" && (
           <div>
-            <label className="text-[10px] text-slate-500 mb-1 block">
+            <label className="text-[10px] text-[hsl(var(--nv-text-tertiary))] mb-1 block">
               Ethereum Address
             </label>
             <input
@@ -507,9 +507,9 @@ function ConditionCard({
               value={entry.wallet || ""}
               onChange={(e) => onUpdate({ wallet: e.target.value })}
               placeholder="0x..."
-              className="w-full px-3 py-1.5 rounded-lg bg-slate-950 border border-slate-700
-                         text-xs text-slate-200 placeholder:text-slate-600
-                         focus:outline-none focus:border-cyan-500/50 transition-colors font-mono"
+              className="w-full px-3 py-1.5 rounded-lg bg-background border border-border
+                         text-xs text-foreground placeholder:text-[hsl(var(--nv-text-tertiary))]
+                         focus:outline-none focus:border-primary/50 transition-colors font-mono"
             />
           </div>
         )}
@@ -517,7 +517,7 @@ function ConditionCard({
         {/* Contract address (for NFT and token) */}
         {(entry.type === "nft" || entry.type === "token") && (
           <div>
-            <label className="text-[10px] text-slate-500 mb-1 block">
+            <label className="text-[10px] text-[hsl(var(--nv-text-tertiary))] mb-1 block">
               Contract Address
             </label>
             <input
@@ -525,9 +525,9 @@ function ConditionCard({
               value={entry.contractAddress || ""}
               onChange={(e) => onUpdate({ contractAddress: e.target.value })}
               placeholder="0x..."
-              className="w-full px-3 py-1.5 rounded-lg bg-slate-950 border border-slate-700
-                         text-xs text-slate-200 placeholder:text-slate-600
-                         focus:outline-none focus:border-cyan-500/50 transition-colors font-mono"
+              className="w-full px-3 py-1.5 rounded-lg bg-background border border-border
+                         text-xs text-foreground placeholder:text-[hsl(var(--nv-text-tertiary))]
+                         focus:outline-none focus:border-primary/50 transition-colors font-mono"
             />
           </div>
         )}
@@ -535,7 +535,7 @@ function ConditionCard({
         {/* Min balance (for token) */}
         {entry.type === "token" && (
           <div>
-            <label className="text-[10px] text-slate-500 mb-1 block">
+            <label className="text-[10px] text-[hsl(var(--nv-text-tertiary))] mb-1 block">
               Minimum Balance (wei)
             </label>
             <input
@@ -543,20 +543,20 @@ function ConditionCard({
               value={entry.minBalance || ""}
               onChange={(e) => onUpdate({ minBalance: e.target.value })}
               placeholder="1000000000000000000"
-              className="w-full px-3 py-1.5 rounded-lg bg-slate-950 border border-slate-700
-                         text-xs text-slate-200 placeholder:text-slate-600
-                         focus:outline-none focus:border-cyan-500/50 transition-colors font-mono"
+              className="w-full px-3 py-1.5 rounded-lg bg-background border border-border
+                         text-xs text-foreground placeholder:text-[hsl(var(--nv-text-tertiary))]
+                         focus:outline-none focus:border-primary/50 transition-colors font-mono"
             />
           </div>
         )}
 
         {/* World ID info (no config needed) */}
         {entry.type === "worldid" && (
-          <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-emerald-500/5 border border-emerald-500/20">
-            <svg className="w-4 h-4 text-emerald-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+          <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-nv-success/5 border border-nv-success/20">
+            <svg className="w-4 h-4 text-nv-success flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 01-1.043 3.296 3.745 3.745 0 01-3.296 1.043A3.745 3.745 0 0112 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 01-3.296-1.043 3.745 3.745 0 01-1.043-3.296A3.745 3.745 0 013 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 011.043-3.296 3.746 3.746 0 013.296-1.043A3.746 3.746 0 0112 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 013.296 1.043 3.746 3.746 0 011.043 3.296A3.745 3.745 0 0121 12z" />
             </svg>
-            <p className="text-xs text-emerald-400/80">
+            <p className="text-xs text-nv-success/80">
               Only verified humans can decrypt this data. No additional configuration needed.
             </p>
           </div>
@@ -565,16 +565,16 @@ function ConditionCard({
         {/* Unlock date (for timelock) */}
         {entry.type === "timelock" && (
           <div>
-            <label className="text-[10px] text-slate-500 mb-1 block">
+            <label className="text-[10px] text-[hsl(var(--nv-text-tertiary))] mb-1 block">
               Unlock Date & Time
             </label>
             <input
               type="datetime-local"
               value={entry.unlockDate || ""}
               onChange={(e) => onUpdate({ unlockDate: e.target.value })}
-              className="w-full px-3 py-1.5 rounded-lg bg-slate-950 border border-slate-700
-                         text-xs text-slate-200
-                         focus:outline-none focus:border-cyan-500/50 transition-colors"
+              className="w-full px-3 py-1.5 rounded-lg bg-background border border-border
+                         text-xs text-foreground
+                         focus:outline-none focus:border-primary/50 transition-colors"
             />
           </div>
         )}

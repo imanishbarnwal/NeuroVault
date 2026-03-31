@@ -34,10 +34,10 @@ const STAGE_LABELS: Record<string, string> = {
 };
 
 const STATUS_LABELS: Record<string, { label: string; color: string }> = {
-  queued: { label: "Queued for Filecoin", color: "text-amber-400" },
-  active: { label: "Active on Filecoin", color: "text-emerald-400" },
-  sealed: { label: "Sealed", color: "text-cyan-400" },
-  unknown: { label: "Checking...", color: "text-slate-400" },
+  queued: { label: "Queued for Filecoin", color: "text-nv-warning" },
+  active: { label: "Active on Filecoin", color: "text-nv-success" },
+  sealed: { label: "Sealed", color: "text-primary" },
+  unknown: { label: "Checking...", color: "text-muted-foreground" },
 };
 
 // ── Component ──────────────────────────────────────────────────────
@@ -77,40 +77,40 @@ export default function StorageStatus({
     progress.stage !== "error";
 
   return (
-    <div className="rounded-xl border border-slate-800 bg-slate-900 p-5 w-full max-w-lg flex flex-col gap-4">
+    <div className="rounded-xl border border-border bg-card p-5 w-full max-w-lg flex flex-col gap-4">
       {/* Header */}
       <div className="flex items-center gap-3">
         <div
           className={`w-3 h-3 rounded-full ${
             progress.stage === "error"
-              ? "bg-red-500"
+              ? "bg-destructive"
               : progress.stage === "complete"
-                ? "bg-emerald-400"
-                : "bg-cyan-400 animate-pulse"
+                ? "bg-nv-success"
+                : "bg-primary animate-pulse"
           }`}
         />
-        <h3 className="text-sm font-semibold text-slate-100">
+        <h3 className="text-sm font-semibold text-foreground">
           {STAGE_LABELS[progress.stage] ?? progress.stage}
         </h3>
       </div>
 
       {/* Progress bar */}
       {isActive && (
-        <div className="w-full h-2 bg-slate-800 rounded-full overflow-hidden">
+        <div className="w-full h-2 bg-muted rounded-full overflow-hidden">
           <div
-            className="h-full bg-gradient-to-r from-cyan-500 to-violet-500 rounded-full transition-all duration-500 ease-out"
+            className="h-full bg-primary rounded-full transition-all duration-500 ease-out"
             style={{ width: `${progress.percent}%` }}
           />
         </div>
       )}
 
       {/* Status message */}
-      <p className="text-xs text-slate-400">{progress.message}</p>
+      <p className="text-xs text-muted-foreground">{progress.message}</p>
 
       {/* Error display */}
       {progress.stage === "error" && progress.error && (
-        <div className="rounded-lg bg-red-500/10 border border-red-500/20 px-3 py-2">
-          <p className="text-xs text-red-400">{progress.error}</p>
+        <div className="rounded-lg bg-destructive/10 border border-destructive/20 px-3 py-2">
+          <p className="text-xs text-destructive">{progress.error}</p>
         </div>
       )}
 
@@ -130,19 +130,19 @@ export default function StorageStatus({
           </div>
 
           {/* Upload info */}
-          <div className="flex items-center justify-between text-[10px] text-slate-500 pt-1 border-t border-slate-800">
+          <div className="flex items-center justify-between text-[10px] text-[hsl(var(--nv-text-tertiary))] pt-1 border-t border-border">
             <span>Uploaded {new Date(progress.result.timestamp).toLocaleString()}</span>
             <span className="font-mono">{truncateCid(progress.result.uploader, 6)}</span>
           </div>
 
           {/* Filecoin proof section */}
-          <div className="rounded-lg border border-slate-800 bg-slate-950 p-3 flex flex-col gap-2">
+          <div className="rounded-lg border border-border bg-background p-3 flex flex-col gap-2">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold text-slate-300">
+              <span className="text-xs font-semibold text-muted-foreground">
                 Filecoin Storage Proof
               </span>
               {proofLoading && (
-                <span className="text-[10px] text-slate-500 animate-pulse">
+                <span className="text-[10px] text-[hsl(var(--nv-text-tertiary))] animate-pulse">
                   Checking...
                 </span>
               )}
@@ -154,7 +154,7 @@ export default function StorageStatus({
                 <div className="flex items-center gap-2">
                   <span
                     className={`text-xs font-medium ${
-                      STATUS_LABELS[proof.status]?.color ?? "text-slate-400"
+                      STATUS_LABELS[proof.status]?.color ?? "text-muted-foreground"
                     }`}
                   >
                     {STATUS_LABELS[proof.status]?.label ?? proof.status}
@@ -165,20 +165,20 @@ export default function StorageStatus({
                 {proof.dealId && (
                   <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-[11px]">
                     <div>
-                      <span className="text-slate-500">Deal ID: </span>
+                      <span className="text-[hsl(var(--nv-text-tertiary))]">Deal ID: </span>
                       <a
                         href={getFilecoinExplorerUrl(proof.dealId)}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-cyan-400 hover:text-cyan-300 underline underline-offset-2"
+                        className="text-primary hover:text-primary/80 underline underline-offset-2"
                       >
                         {proof.dealId}
                       </a>
                     </div>
                     {proof.miner && (
                       <div>
-                        <span className="text-slate-500">Miner: </span>
-                        <span className="text-slate-300 font-mono">
+                        <span className="text-[hsl(var(--nv-text-tertiary))]">Miner: </span>
+                        <span className="text-muted-foreground font-mono">
                           {proof.miner}
                         </span>
                       </div>
@@ -187,13 +187,13 @@ export default function StorageStatus({
                 )}
 
                 {proof.pieceCid && (
-                  <div className="text-[10px] text-slate-600 font-mono truncate">
+                  <div className="text-[10px] text-[hsl(var(--nv-text-tertiary))] font-mono truncate">
                     Piece: {proof.pieceCid}
                   </div>
                 )}
 
                 {!proof.dealId && proof.status === "queued" && (
-                  <p className="text-[10px] text-slate-500">
+                  <p className="text-[10px] text-[hsl(var(--nv-text-tertiary))]">
                     Data is stored on IPFS and queued for Filecoin deals.
                     Deals are typically made within 24-48 hours.
                   </p>
@@ -201,7 +201,7 @@ export default function StorageStatus({
               </div>
             ) : (
               !proofLoading && (
-                <p className="text-[10px] text-slate-500">
+                <p className="text-[10px] text-[hsl(var(--nv-text-tertiary))]">
                   Storage proof not yet available.
                 </p>
               )
@@ -225,26 +225,26 @@ function CidRow({ label, cid }: { label: string; cid: string }) {
   };
 
   return (
-    <div className="flex items-center gap-2 rounded-lg bg-slate-950 border border-slate-800 px-3 py-2">
-      <span className="text-[10px] text-slate-500 w-20 flex-shrink-0">
+    <div className="flex items-center gap-2 rounded-lg bg-background border border-border px-3 py-2">
+      <span className="text-[10px] text-[hsl(var(--nv-text-tertiary))] w-20 flex-shrink-0">
         {label}
       </span>
       <a
         href={getGatewayUrl(cid)}
         target="_blank"
         rel="noopener noreferrer"
-        className="text-xs text-cyan-400 hover:text-cyan-300 font-mono truncate flex-1"
+        className="text-xs text-primary hover:text-primary/80 font-mono truncate flex-1"
         title={cid}
       >
         {truncateCid(cid, 12)}
       </a>
       <button
         onClick={handleCopy}
-        className="text-[10px] text-slate-500 hover:text-slate-300 flex-shrink-0 transition-colors"
+        className="text-[10px] text-[hsl(var(--nv-text-tertiary))] hover:text-muted-foreground flex-shrink-0 transition-colors"
         title="Copy CID"
       >
         {copied ? (
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-emerald-400">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-nv-success">
             <path d="M20 6L9 17l-5-5" />
           </svg>
         ) : (
