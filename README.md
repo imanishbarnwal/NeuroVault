@@ -19,7 +19,7 @@
 
 ## What is NeuroVault?
 
-A decentralized marketplace for securely storing, sharing, and monetizing brain-computer interface (BCI) research data. EEG recordings are encrypted client-side, stored on Filecoin, and licensed on-chain, so researchers earn from their data while keeping full privacy control.
+A decentralized marketplace for securely storing, sharing, and monetizing brain-computer interface (BCI) research data. EEG recordings are encrypted client-side, stored on Filecoin, and licensed on-chain, so contributors earn from their data while researchers access it with full privacy guarantees.
 
 ## The Problem
 
@@ -91,6 +91,8 @@ All EEG data is encrypted client-side before upload using Lit Protocol's thresho
 
 The `NeuroVaultRegistry` Solidity contract (deployed to Flow EVM Testnet, Chain 545) is the economic backbone. It handles dataset registration (mapping CIDs to contributor addresses and prices), 30-day access license issuance, and automatic contributor payments using `ReentrancyGuard` for security. When a researcher purchases access, the FLOW payment goes directly to the contributor with overpayment refunded.
 
+**Deployed contract:** `0x0C36f096f7677D4aD9351b2a511D41F6B6d05FD1` (Flow EVM Testnet, Chain 545)
+
 **Key files:** `contracts/flow/solidity/contracts/NeuroVaultRegistry.sol`, `apps/web/lib/flow.ts`
 
 ### NEAR Protocol - AI-Powered Dataset Matching
@@ -138,7 +140,7 @@ cd NeuroVault
 pnpm install
 
 # Copy environment variables
-cp .env.example .env
+cp .env.example .env.local
 # (Optional) Fill in your keys, the app runs in demo mode without them
 
 # Build the EEG utilities package

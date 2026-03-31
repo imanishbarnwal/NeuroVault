@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="400" height="400">
+  <defs>
+    <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#06b6d4;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#8b5cf6;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="gradText" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#06b6d4;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#8b5cf6;stop-opacity:1" />
+    </linearGradient>
+    <clipPath id="hexClip">
+      <polygon points="200,30 355,115 355,285 200,370 45,285 45,115" />
+    </clipPath>
+  </defs>
+
+  <!-- Hex background -->
+  <polygon points="200,30 355,115 355,285 200,370 45,285 45,115"
+    fill="#0f172a" stroke="url(#grad)" stroke-width="3" />
+
+  <!-- Subtle inner hex ring -->
+  <polygon points="200,55 333,127.5 333,272.5 200,345 67,272.5 67,127.5"
+    fill="none" stroke="url(#grad)" stroke-width="0.8" opacity="0.25" />
+
+  <!-- EEG waveform across center -->
+  <g clip-path="url(#hexClip)">
+    <polyline
+      points="45,200 80,200 95,200 110,160 125,240 140,175 155,225 165,200 185,200 200,140 215,260 225,195 238,205 250,200 265,200"
+      fill="none" stroke="url(#grad)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" opacity="0.35"/>
+    <polyline
+      points="135,200 150,200 165,160 180,240 195,175 210,225 220,200 240,200 255,140 270,260 280,195 293,205 305,200 320,200 355,200"
+      fill="none" stroke="url(#grad)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" opacity="0.35"/>
+  </g>
+
+  <!-- NV monogram -->
+  <!-- N -->
+  <line x1="138" y1="235" x2="138" y2="165" stroke="url(#grad)" stroke-width="12" stroke-linecap="round"/>
+  <line x1="138" y1="165" x2="178" y2="235" stroke="url(#grad)" stroke-width="12" stroke-linecap="round"/>
+  <line x1="178" y1="165" x2="178" y2="235" stroke="url(#grad)" stroke-width="12" stroke-linecap="round"/>
+
+  <!-- V -->
+  <line x1="196" y1="165" x2="218" y2="235" stroke="url(#grad)" stroke-width="12" stroke-linecap="round"/>
+  <line x1="240" y1="165" x2="218" y2="235" stroke="url(#grad)" stroke-width="12" stroke-linecap="round"/>
+
+  <!-- Glow dots at hex corners -->
+  <circle cx="200" cy="30"  r="4" fill="#06b6d4" opacity="0.7"/>
+  <circle cx="355" cy="115" r="4" fill="#6d88e8" opacity="0.7"/>
+  <circle cx="355" cy="285" r="4" fill="#8b5cf6" opacity="0.7"/>
+  <circle cx="200" cy="370" r="4" fill="#8b5cf6" opacity="0.7"/>
+  <circle cx="45"  cy="285" r="4" fill="#6d88e8" opacity="0.7"/>
+  <circle cx="45"  cy="115" r="4" fill="#06b6d4" opacity="0.7"/>
+</svg>

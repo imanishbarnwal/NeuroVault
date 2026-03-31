@@ -21,6 +21,11 @@ export const metadata: Metadata = {
   title: "NeuroVault — Privacy-Preserving Neural Data Commons",
   description:
     "A decentralized platform for securely storing, sharing, and monetizing brain-computer interface research data. Powered by Filecoin, Lit Protocol, Flow, NEAR, and World ID.",
+  icons: {
+    icon: "/icon.svg",
+    shortcut: "/icon.svg",
+    apple: "/logo.svg",
+  },
 };
 
 export default function RootLayout({

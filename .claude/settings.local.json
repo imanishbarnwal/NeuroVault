@@ -50,7 +50,8 @@
       "Bash(pnpm add:*)",
       "Bash(pkill -f 'next dev -p 3001')",
       "Bash(find /Users/imanishbarnwal/Downloads/NeuroVault -name demo_script* -o -name *demo*script*)",
-      "Bash(find /Users/imanishbarnwal/Downloads/NeuroVault -name *.edf)"
+      "Bash(find /Users/imanishbarnwal/Downloads/NeuroVault -name *.edf)",
+      "WebFetch(domain:pl-genesis-frontiers-of-collaboration-hackathon.devspot.app)"
     ]
   }
 }
