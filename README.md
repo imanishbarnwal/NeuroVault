@@ -11,7 +11,7 @@
 [![NEAR](https://img.shields.io/badge/Chain-NEAR-000000?style=for-the-badge)](https://near.org)
 [![License](https://img.shields.io/badge/License-MIT-blue?style=for-the-badge)](LICENSE)
 
-[Live App](#getting-started) &nbsp;|&nbsp; [Architecture](docs/ARCHITECTURE.md) &nbsp;|&nbsp; [GitHub](https://github.com/imanishbarnwal/NeuroVault)
+[Live App](https://neuro-vault-web.vercel.app/) &nbsp;|&nbsp; [Architecture](docs/ARCHITECTURE.md) &nbsp;|&nbsp; [GitHub](https://github.com/imanishbarnwal/NeuroVault)
 
 </div>
 
@@ -83,7 +83,7 @@ NeuroVault uses Storacha as the primary storage layer for all encrypted EEG data
 
 ### Lit Protocol - Programmable Encryption
 
-All EEG data is encrypted client-side before upload using Lit Protocol's threshold encryption network. Contributors define EVM-based access conditions when uploading: wallet address checks, NFT ownership gates, ERC-20 token balance requirements, timelock conditions, or on-chain Flow access verification. These conditions are evaluated by Lit's decentralized node network, so no single party can decrypt data. The platform supports composing multiple conditions with AND/OR operators, and includes a World ID condition for proof-of-personhood requirements.
+All EEG data is encrypted client-side before upload using **Lit Protocol V1 (Naga) SDK** - the threshold encryption network on the `datil-dev` Naga testnet. Contributors define EVM-based access conditions when uploading: wallet address checks, NFT ownership gates, ERC-20 token balance requirements, timelock conditions, or on-chain Flow access verification. These conditions are evaluated by Lit's decentralised node network - no single node can decrypt data without threshold consensus. The platform supports composing multiple conditions with AND/OR operators, and includes a World ID condition for proof-of-personhood requirements.
 
 **Key files:** `apps/web/lib/lit.ts`, `apps/web/components/upload/AccessConditionBuilder.tsx`
 
@@ -224,6 +224,19 @@ Every integration supports a demo fallback for development and judging:
 | World ID | IDKitWidget + server validation | Auto-verify bypass |
 
 Demo mode activates automatically when environment variables are missing or blockchain connections fail.
+
+---
+
+## Ethics & Safety
+
+Neural data is uniquely sensitive - it can reveal mental states, neurological conditions, and personal identity. NeuroVault is designed from first principles around the following commitments:
+
+- **Consent-first**: Contributors explicitly define access conditions before any data leaves their browser. No upload without explicit condition-setting.
+- **No plaintext exposure**: Encryption happens client-side. The server, Storacha nodes, and Filecoin storage providers never see unencrypted EEG data.
+- **Revocable access**: Lit Protocol access conditions can be updated to revoke researcher access at the contributor's discretion.
+- **Sybil resistance**: World ID proof-of-personhood prevents fake identities from gaming the marketplace or extracting data at scale.
+- **Transparency over obscurity**: On-chain licensing and payments are fully auditable. Contributors can verify every access event on Flow.
+- **No biometric lock-in**: EEG data is stored in open EDF+ format. Contributors are not locked into NeuroVault and can migrate their CIDs to any IPFS-compatible tool.
 
 ---
 
